@@ -6,7 +6,6 @@ run:
 
 build:
 	poetry build
-	python3 -m pip install --force-reinstall dist/*.whl
 
 publish:
 	poetry publish --dry-run
@@ -16,3 +15,6 @@ package-install:
 
 lint:
 	poetry run flake8 gendiff
+
+test:
+	poetry run test './tests/fixtures/file1.json' './tests/fixtures/file2.json'
