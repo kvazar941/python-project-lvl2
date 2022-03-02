@@ -6,6 +6,7 @@ run:
 
 build:
 	poetry build
+	python3 -m pip install --force-reinstall dist/*.whl
 
 publish:
 	poetry publish --dry-run
@@ -18,3 +19,5 @@ lint:
 
 test:
 	poetry run test './tests/fixtures/file1.json' './tests/fixtures/file2.json'
+	poetry run test './tests/fixtures/file3.yml' './tests/fixtures/file4.yaml'
+

@@ -2,3 +2,4 @@ venv-project-lvl2/
 *.рус
 __pycache__
 dist/
+MakeFile
