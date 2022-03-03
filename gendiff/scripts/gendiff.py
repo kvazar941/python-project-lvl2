@@ -2,6 +2,7 @@
 """module gendiff"""
 from gendiff.parsing import parce
 import json
+import yaml
 
 
 args = parce.parce_file()
@@ -51,7 +52,7 @@ def generate_diff(file1=args.first_file, file2=args.second_file):
             result += ' -  ' + add_str(a, first_f)
         elif a not in first_f and a in second_f:
             result += ' +  ' + add_str(a, second_f)
-    result += '}'
+    result += '}\n'
     return result
 
 
