@@ -18,6 +18,6 @@ lint:
 	poetry run flake8 gendiff
 
 test:
-	poetry run test './tests/fixtures/file1.json' './tests/fixtures/file2.json'
-	poetry run test './tests/fixtures/file3.yml' './tests/fixtures/file4.yaml'
+	poetry run test './tests/fixtures/flat/file1.json' './tests/fixtures/flat/file2.json'
+	poetry run test './tests/fixtures/flat/file3.yml' './tests/fixtures/flat/file4.yaml'
 
