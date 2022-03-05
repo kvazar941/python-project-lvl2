@@ -29,6 +29,17 @@ def read_file(item):
             return yaml.load(file_yaml, Loader=yaml.FullLoader)
 
 
+def terms(key, f_1, f_2):
+    if key in f_1 and key in f_2 and f_1[key] == f_2[key]:
+        return '    ' + add_str(key, f_2)
+    elif key in f_1 and key in f_2 and f_1[key] != f_2[key]:
+        return ' -  ' + add_str(key, f_1) + ' +  ' + add_str(key, f_2)
+    elif key in f_1 and key not in f_2:
+        return ' -  ' + add_str(key, f_1)
+    elif key not in f_1 and key in f_2:
+        return ' +  ' + add_str(key, f_2)
+
+
 def generate_diff(file1=args.first_file, file2=args.second_file):
     """
     main code
@@ -39,19 +50,10 @@ def generate_diff(file1=args.first_file, file2=args.second_file):
     
     first_f = read_file(file1)
     second_f = read_file(file2)
-    key_set = sorted({key for key in first_f} | {key for key in second_f})
+    key_set = sorted(first_f.keys() | second_f.keys())
     result = '{\n'
     for a in key_set:
-        if a in first_f and a in second_f:
-            if first_f[a] == second_f[a]:
-                result += '    ' + add_str(a, second_f)
-            else:
-                result += ' -  ' + add_str(a, first_f)
-                result += ' +  ' + add_str(a, second_f)
-        elif a in first_f and a not in second_f:
-            result += ' -  ' + add_str(a, first_f)
-        elif a not in first_f and a in second_f:
-            result += ' +  ' + add_str(a, second_f)
+        result += terms(a, first_f, second_f)
     result += '}\n'
     return result
 
