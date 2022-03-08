@@ -16,10 +16,6 @@ def convert_bool(value):
     return value
 
 
-def add_str(elem, file_):
-    return "{0}: {1}\n".format(elem, convert_bool(file_[elem]))
-
-
 def read_file(item):
     if item.split('.')[-1] == 'json':
         res_js = json.load(open(item))
@@ -29,15 +25,35 @@ def read_file(item):
             return yaml.load(file_yaml, Loader=yaml.FullLoader)
 
 
-def terms(key, f_1, f_2):
-    if key in f_1 and key in f_2 and f_1[key] == f_2[key]:
-        return '    ' + add_str(key, f_2)
-    elif key in f_1 and key in f_2 and f_1[key] != f_2[key]:
-        return ' -  ' + add_str(key, f_1) + ' +  ' + add_str(key, f_2)
-    elif key in f_1 and key not in f_2:
-        return ' -  ' + add_str(key, f_1)
-    elif key not in f_1 and key in f_2:
-        return ' +  ' + add_str(key, f_2)
+def diff(dict_a, dict_b):
+    key_set = sorted(dict_a.keys() | dict_b.keys())
+    result_dict = {}
+    for a in key_set:
+        if a in dict_a and a in dict_b:
+            if type(dict_a[a]) == dict and type(dict_b[a]) == dict:
+                result_dict['    ' + a] = diff(dict_a[a], dict_b[a])
+            else:
+                if dict_a[a] == dict_b[a]:
+                    result_dict['    ' + a] = convert_bool(dict_b[a])
+                if dict_a[a] != dict_b[a]:
+                    result_dict['  - ' + a] = convert_bool(dict_a[a])
+                    result_dict['  + ' + a] = convert_bool(dict_b[a])
+        if a in dict_a and a not in dict_b:
+            result_dict['  - ' + a] = convert_bool(dict_a[a])
+        if a not in dict_a and a in dict_b:
+            result_dict['  + ' + a] = convert_bool(dict_b[a])
+    return result_dict
+
+
+def form(dict_, count=0):
+    result = '{\n'
+    for x, y in dict_.items():
+        if type(y) == dict:
+            result += '    '*count + "{0}: {1}\n".format(x, form(y, count+1))
+        else:
+            result += '    '*count + "{0}: {1}\n".format(x, y)
+    result += '    '*count + '}\n'
+    return result
 
 
 def generate_diff(file1=args.first_file, file2=args.second_file):
@@ -48,14 +64,9 @@ def generate_diff(file1=args.first_file, file2=args.second_file):
         str
     """
     
-    first_f = read_file(file1)
-    second_f = read_file(file2)
-    key_set = sorted(first_f.keys() | second_f.keys())
-    result = '{\n'
-    for a in key_set:
-        result += terms(a, first_f, second_f)
-    result += '}\n'
-    return result
+    print(form(diff(read_file(file1), read_file(file2))))
+    return form(diff(read_file(file1), read_file(file2)))
+    #return formater(diff(read_file(file1), read_file(file2)))
 
 
 if __name__ == '__main__':
