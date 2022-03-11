@@ -68,6 +68,41 @@ def diff(dict_a, dict_b):
     return result_dict
 
 
+def convert_to_tree(key, value, diff):
+    if type(value) == dict:
+        result = {'key': key,
+                'type': dict,
+                'diff': diff,
+                'children': value
+                }
+    else:
+        result = {'key': key,
+                'type': 'elem',
+                'diff': diff,
+                'value': value
+                }
+    return result
+
+
+def func_3(dict_):
+    result = ''
+    if dict_['type'] == 'elem':
+        return
+    res = dict_["children"]
+    print(convert_to_tree(dict_["key"], dict_["children"], '  3 '))
+    result += "{0}{1} {2}: {3}{4}".format('{\n', dict_["diff"], dict_["key"], res, '\n}')
+    return result
+
+def func_2(dict_):
+    result = [convert_to_tree(a, dict_[a], '   ') for a in dict_]
+
+    #if type(dict_) != dict:
+    #    return
+    #list[map(func_2, result)]
+
+    return result
+
+
 def stylish(dict_, count=0):
     result = '{\n'
     for x, y in dict_.items():
@@ -86,7 +121,11 @@ def generate_diff(file1=args.first_file, file2=args.second_file):
     Returns:
         str
     """
-    
+    asd = func_2(read_file(file1))
+    for xe in asd:
+        func_3(xe)
+    #print(func_2(fync_1('key123', 'abc', '  - ')))
+    #print(func_2(fync_1('key123', {'abc': 1, 'abc': {'one': 1, 'two': 2}, 'tree': 3}, '  - ')))
     return stylish(diff(read_file(file1), read_file(file2)))
 
 
