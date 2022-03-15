@@ -27,54 +27,20 @@ def read_file(item):
             return yaml.load(file_yaml, Loader=yaml.FullLoader)
 
 
-def dict_list(dict_df):
-    result_dict = {}
-    for z in dict_df:
-        if type(dict_df[z]) == dict:
-            result_dict['    ' + z] = convert_bool(dict_list(dict_df[z]))
-        else:
-            result_dict['    ' + z] = convert_bool(dict_df[z])
-    return result_dict
-
-def diff(dict_a, dict_b):
-    key_set = sorted(dict_a.keys() | dict_b.keys())
-    result_dict = {}
-    for a in key_set:
-        if a in dict_a and a in dict_b:
-            if type(dict_a[a]) == dict and type(dict_b[a]) == dict:
-                result_dict['    ' + a] = diff(dict_a[a], dict_b[a])
-            else:
-                if dict_a[a] == dict_b[a]:
-                    result_dict['    ' + a] = convert_bool(dict_b[a])
-                if dict_a[a] != dict_b[a]:
-                    if type(dict_a[a]) == dict:
-                        result_dict['  - ' + a] = dict_list(dict_a[a])
-                    else:
-                        result_dict['  - ' + a] = convert_bool(dict_a[a])
-                    if type(dict_b[a]) == dict:
-                        result_dict['  + ' + a] = dict_list(dict_b[a])
-                    else:
-                        result_dict['  + ' + a] = convert_bool(dict_b[a])
-        if a in dict_a and a not in dict_b:
-            if type(dict_a[a]) == dict:
-                result_dict['  - ' + a] = dict_list(dict_a[a])
-            else:
-                result_dict['  - ' + a] = convert_bool(dict_a[a])
-        if a not in dict_a and a in dict_b:
-            if type(dict_b[a]) == dict:
-                result_dict['  + ' + a] = dict_list(dict_b[a])
-            else:
-                result_dict['  + ' + a] = convert_bool(dict_b[a])
-    return result_dict
-
-
-def convert_to_tree(key, value, diff):
+def convert_to_node(key, value, diff):
     if type(value) == dict:
         result = {'key': key,
-                'type': dict,
+                'type': 'dict',
+                'diff': diff,
+                'children': [value]
+                }
+    elif type(value) == list:
+        result = {'key': key,
+                'type': 'dict',
                 'diff': diff,
                 'children': value
                 }
+
     else:
         result = {'key': key,
                 'type': 'elem',
@@ -84,34 +50,122 @@ def convert_to_tree(key, value, diff):
     return result
 
 
-def func_3(dict_):
-    result = ''
-    if dict_['type'] == 'elem':
-        return
-    res = dict_["children"]
-    print(convert_to_tree(dict_["key"], dict_["children"], '  3 '))
-    result += "{0}{1} {2}: {3}{4}".format('{\n', dict_["diff"], dict_["key"], res, '\n}')
-    return result
-
-def func_2(dict_):
-    result = [convert_to_tree(a, dict_[a], '   ') for a in dict_]
-
-    #if type(dict_) != dict:
-    #    return
-    #list[map(func_2, result)]
-
-    return result
+def get_key(dict_):
+    return dict_.get('key')
 
 
-def stylish(dict_, count=0):
-    result = '{\n'
-    for x, y in dict_.items():
-        if type(y) == dict:
-            result += '    '*count + "{0}: {1}".format(x, stylish(y, count+1))
+def get_value(dict_):
+    return dict_.get('value')
+
+
+def get_type(dict_):
+    return dict_.get('type')
+
+
+def set_diff(dict_, diff):
+    dict_['diff'] = diff
+
+
+def dict_list2(list_df):
+    result_list = []
+    for z in list_df:
+        if type(list_df[z]) == dict:
+            result_list.append(convert_to_node(z, dict_list2(list_df[z]), '    '))
         else:
-            result += '    '*count + "{0}: {1}\n".format(x, y)
-    result += '    '*count + '}\n'
+            result_list.append(convert_to_node(z, convert_bool(list_df[z]), '    '))
+    return result_list
+
+
+def diff_of_list(dict_a, dict_b, count=0):
+    key_set = sorted(dict_a.keys() | dict_b.keys())
+    result_dict = []
+    for a in key_set:
+        if a in dict_a and a in dict_b:
+            if type(dict_a[a]) == dict and type(dict_b[a]) == dict:
+                result_dict.append(convert_to_node(a, diff_of_list(dict_a[a], dict_b[a], count + 1), '    '))
+            else:
+                if dict_a[a] == dict_b[a]:
+                    result_dict.append(convert_to_node(a, convert_bool(dict_b[a]), '    '))
+                if dict_a[a] != dict_b[a]:
+                    if type(dict_a[a]) == dict:
+                        result_dict.append(convert_to_node(a, convert_bool(dict_list2(dict_a[a])), '  - '))
+                    else:
+                        result_dict.append(convert_to_node(a, convert_bool(dict_a[a]), '  - '))
+                    if type(dict_b[a]) == dict:
+                        result_dict.append(convert_to_node(a, convert_bool(dict_list2(dict_b[a])), '  + '))
+                    else:
+                        result_dict.append(convert_to_node(a, convert_bool(dict_b[a]), '  + '))
+        if a in dict_a and a not in dict_b:
+            if type(dict_a[a]) == dict:
+                result_dict.append(convert_to_node(a, convert_bool(dict_list2(dict_a[a])), '  - '))
+            else:
+                result_dict.append(convert_to_node(a, convert_bool(dict_a[a]), '  - '))
+        if a not in dict_a and a in dict_b:
+            if type(dict_b[a]) == dict:
+                result_dict.append(convert_to_node(a, convert_bool(dict_list2(dict_b[a])), '  + '))
+            else:
+                result_dict.append(convert_to_node(a, convert_bool(dict_b[a]), '  + '))
+    return result_dict          
+    
+
+def stylish(list_, count=0):
+    result = '{\n'
+    for a in list_:
+        if a.get('children') == None:
+            result += "{0}{1}: {2}\n".format('    '*count + a['diff'], a['key'], a['value'])
+        else:
+            result += "{0}{1}: {2}".format('    '*count + a['diff'], a['key'], stylish(a['children'], count + 1))
+    result += '    '*count + '}'
+    result += '\n'
     return result
+
+
+def plain2(list_):
+    a_filtr = [x for x in list_ if x['diff'] != '    ']
+    a_removed = {elem['key'] for elem in a_filtr if elem['diff'] == '  - '}
+    a_added = {elem['key'] for elem in a_filtr if elem['diff'] == '  + '}
+    a_updated = a_added & a_removed
+    a_added -= a_updated
+    a_removed -= a_updated
+    result = ''
+    print(a_added, a_removed, a_updated)
+    for a in a_filtr:
+        key_add = a['key']
+        if a['key'] in a_added:
+            if a['type'] == 'dict':
+                result += plain(a['children'])
+            else:
+                result += "Property '" + key_add + "' was added with value: " + a['value']+ "\n"
+        if a['key'] in a_removed:
+            result += "Property '" + key_add + "' was removed\n"
+        if a['key'] in a_updated:
+            result += "Property '" + key_add + "' was updated.\n"
+
+    print(result)
+    return result
+
+
+def plain(list_):
+    result = ''
+    add_str = 'added with value: '
+    for a in list_:
+        print(len([x['key'] for x in list_ if x['key'] == a['key']]))
+        add_str = 'added with value: '
+        rem_str = 'removed'
+        upd_str = 'updated'
+        if a['diff'] == '  - ':
+            result += "Property '{0}' was {1}\n".format(a['key'], rem_str)
+        if a['diff'] == '  + ':
+            if a['type'] == 'dict':
+                result += "Property '{0}' was {1} {2}\n".format(a['key'], add_str, a['children'])
+            else:
+                result += "Property '{0}' was {1} {2}\n".format(a['key'], add_str, a['value'])
+            
+
+
+    print(result)
+    return result
+
 
 
 def generate_diff(file1=args.first_file, file2=args.second_file):
@@ -121,13 +175,9 @@ def generate_diff(file1=args.first_file, file2=args.second_file):
     Returns:
         str
     """
-    asd = func_2(read_file(file1))
-    for xe in asd:
-        func_3(xe)
-    #print(func_2(fync_1('key123', 'abc', '  - ')))
-    #print(func_2(fync_1('key123', {'abc': 1, 'abc': {'one': 1, 'two': 2}, 'tree': 3}, '  - ')))
-    return stylish(diff(read_file(file1), read_file(file2)))
-
+    ret = diff_of_list(read_file(file1), read_file(file2))
+    plain(ret)
+    return stylish(diff_of_list(read_file(file1), read_file(file2)))
 
 if __name__ == '__main__':
     generate_diff()
