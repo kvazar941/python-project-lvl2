@@ -70,9 +70,9 @@ def dict_list2(list_df):
     result_list = []
     for z in list_df:
         if type(list_df[z]) == dict:
-            result_list.append(convert_to_node(z, dict_list2(list_df[z]), '    '))
+            result_list.append(convert_to_node(z, dict_list2(list_df[z]), {'old': convert_bool(list_df[z]), 'new': convert_bool(list_df[z])}))
         else:
-            result_list.append(convert_to_node(z, convert_bool(list_df[z]), '    '))
+            result_list.append(convert_to_node(z, convert_bool(list_df[z]), {'old': convert_bool(list_df[z]), 'new': convert_bool(list_df[z])}))
     return result_list
 
 
@@ -82,39 +82,64 @@ def diff_of_list(dict_a, dict_b, count=0):
     for a in key_set:
         if a in dict_a and a in dict_b:
             if type(dict_a[a]) == dict and type(dict_b[a]) == dict:
-                result_dict.append(convert_to_node(a, diff_of_list(dict_a[a], dict_b[a], count + 1), '    '))
+                result_dict.append(convert_to_node(a, diff_of_list(dict_a[a], dict_b[a], count + 1), {'old': dict_a[a], 'new': dict_b[a]})) # '    '
             else:
                 if dict_a[a] == dict_b[a]:
-                    result_dict.append(convert_to_node(a, convert_bool(dict_b[a]), '    '))
+                    result_dict.append(convert_to_node(a, convert_bool(dict_b[a]), {'old': convert_bool(dict_a[a]), 'new': convert_bool(dict_b[a])})) # '    '
                 if dict_a[a] != dict_b[a]:
                     if type(dict_a[a]) == dict:
-                        result_dict.append(convert_to_node(a, convert_bool(dict_list2(dict_a[a])), '  - '))
+                        result_dict.append(convert_to_node(a, convert_bool(dict_list2(dict_a[a])), {'old': dict_a[a], 'new': dict_b[a]})) #'  - '
                     else:
-                        result_dict.append(convert_to_node(a, convert_bool(dict_a[a]), '  - '))
+                        result_dict.append(convert_to_node(a, convert_bool(dict_a[a]), {'old': convert_bool(dict_a[a]), 'new': convert_bool(dict_b[a])})) #'  - '
                     if type(dict_b[a]) == dict:
-                        result_dict.append(convert_to_node(a, convert_bool(dict_list2(dict_b[a])), '  + '))
+                        result_dict.append(convert_to_node(a, convert_bool(dict_list2(dict_b[a])), {'old': dict_a[a], 'new': dict_b[a]})) #'  + '
                     else:
-                        result_dict.append(convert_to_node(a, convert_bool(dict_b[a]), '  + '))
+                        result_dict.append(convert_to_node(a, convert_bool(dict_b[a]), {'old': convert_bool(dict_a[a]), 'new': convert_bool(dict_b[a])})) #'  + '
         if a in dict_a and a not in dict_b:
             if type(dict_a[a]) == dict:
-                result_dict.append(convert_to_node(a, convert_bool(dict_list2(dict_a[a])), '  - '))
+                result_dict.append(convert_to_node(a, convert_bool(dict_list2(dict_a[a])), {'old': convert_bool(dict_a[a]), 'new': None})) # '  - '
             else:
-                result_dict.append(convert_to_node(a, convert_bool(dict_a[a]), '  - '))
+                result_dict.append(convert_to_node(a, convert_bool(dict_a[a]), {'old': convert_bool(dict_a[a]), 'new': None})) #'  - '
         if a not in dict_a and a in dict_b:
             if type(dict_b[a]) == dict:
-                result_dict.append(convert_to_node(a, convert_bool(dict_list2(dict_b[a])), '  + '))
+                result_dict.append(convert_to_node(a, convert_bool(dict_list2(dict_b[a])), {'old': None, 'new': convert_bool(dict_b[a])})) # '  + '
             else:
-                result_dict.append(convert_to_node(a, convert_bool(dict_b[a]), '  + '))
+                result_dict.append(convert_to_node(a, convert_bool(dict_b[a]), {'old': None, 'new': convert_bool(dict_b[a])})) # '  + '
     return result_dict          
     
 
 def stylish(list_, count=0):
     result = '{\n'
     for a in list_:
+        diff_ = a['diff']
+        diff_old = diff_['old']
+        diff_new = diff_['new']
+        diff_result = '    '
+
         if a.get('children') == None:
-            result += "{0}{1}: {2}\n".format('    '*count + a['diff'], a['key'], a['value'])
+            if diff_old != diff_new:
+                if a['value'] == diff_['old']:
+                    diff_result = '  - '
+                elif a['value'] == diff_['new']:
+                    diff_result = '  + '
+                elif diff_old == None:
+                    diff_result = '  + '
+                elif diff_new == None:
+                    diff_result = '  - '
+                
+            result += "{0}{1}: {2}\n".format('    '*count + diff_result, a['key'], a['value'])
         else:
-            result += "{0}{1}: {2}".format('    '*count + a['diff'], a['key'], stylish(a['children'], count + 1))
+            if diff_old != diff_new:
+                if a['children'] == diff_['old']:
+                    diff_result = '  - '
+                elif a['children'] == diff_['new']:
+                    diff_result = '  + '
+                elif diff_old == None:
+                    diff_result = '  + '
+                elif diff_new == None:
+                    diff_result = '  - '
+            result += "{0}{1}: {2}".format('    '*count + diff_result, a['key'], stylish(a['children'], count + 1))
+
     result += '    '*count + '}'
     result += '\n'
     return result
@@ -148,22 +173,17 @@ def plain2(list_):
 def plain(list_):
     result = ''
     add_str = 'added with value: '
+    add_str = 'added with value: '
+    rem_str = 'removed'
+    upd_str = 'updated'
     for a in list_:
-        print(len([x['key'] for x in list_ if x['key'] == a['key']]))
-        add_str = 'added with value: '
-        rem_str = 'removed'
-        upd_str = 'updated'
-        if a['diff'] == '  - ':
-            result += "Property '{0}' was {1}\n".format(a['key'], rem_str)
-        if a['diff'] == '  + ':
-            if a['type'] == 'dict':
-                result += "Property '{0}' was {1} {2}\n".format(a['key'], add_str, a['children'])
-            else:
-                result += "Property '{0}' was {1} {2}\n".format(a['key'], add_str, a['value'])
-            
-
-
-    print(result)
+        a_diff = a['diff']
+        if a_diff['old'] == None:
+            print('Property ', a['key'], 'was added with value: ', a_diff['new'])
+        if a_diff['new'] == None:
+            print('Property ', a['key'], 'was remowed')
+        if a_diff['old'] != a_diff['new'] and a_diff['old'] != None and a_diff['new'] != None:
+            print('Property ', a['key'], 'was updated. From ', a_diff['old'], ' to ', a_diff['new'])
     return result
 
 
@@ -176,7 +196,8 @@ def generate_diff(file1=args.first_file, file2=args.second_file):
         str
     """
     ret = diff_of_list(read_file(file1), read_file(file2))
-    plain(ret)
+    print(plain(ret))
+    #print(stylish(ret))
     return stylish(diff_of_list(read_file(file1), read_file(file2)))
 
 if __name__ == '__main__':
