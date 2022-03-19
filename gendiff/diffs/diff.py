@@ -1,22 +1,6 @@
 """Diff module"""
 
 
-def get_key(dict_):
-    return dict_.get('key')
-
-
-def get_value(dict_):
-    return dict_.get('value')
-
-
-def get_type(dict_):
-    return dict_.get('type')
-
-
-def set_diff(dict_, diff):
-    dict_['diff'] = diff
-
-
 def convert_bool(value):
     if value == True:
         return 'true'
@@ -52,6 +36,7 @@ def convert_to_node(key, value, diff):
 def dict_list2(list_):
     result = []
     for z in list_:
+        #argum = {'old': '', 'new': ''}
         argum = {'old': convert_bool(list_[z]), 'new': convert_bool(list_[z])}
         if type(list_[z]) == dict:
             result.append(convert_to_node(z, dict_list2(list_[z]), argum))

@@ -1,6 +1,7 @@
 #!/usr/bin/env/python3
 """module gendiff"""
 from gendiff.parsing import parce
+import argparse
 from gendiff.formatters import stylish, plain, to_json
 from gendiff.diffs import diff
 import json
@@ -19,18 +20,23 @@ def read_file(item):
             return yaml.load(file_yaml, Loader=yaml.FullLoader)
 
 
-def generate_diff(file1=args.first_file, file2=args.second_file):
+def generate_diff(f_1=args.first_file, f_2=args.second_file, f=args.format):
     """
     main code
 
     Returns:
         str
     """
-    ret = diff.diff_of_list(read_file(file1), read_file(file2))
-    #  ret = diff_of_list(read_file(file1), read_file(file2))
-    print(stylish.formatter(ret))
-    print(plain.formatter(ret))
-    return stylish.formatter(ret)
+    ret = diff.diff_of_list(read_file(f_1), read_file(f_2))
+    if f == 'plain':
+        print(plain.formatter(ret))
+        return plain.formatter(ret)
+    elif f == 'json':
+        print(to_json.formatter(ret))
+        return to_json.formatter(ret)
+    else:
+        print(stylish.formatter(ret))
+        return stylish.formatter(ret)
 
 if __name__ == '__main__':
     generate_diff()

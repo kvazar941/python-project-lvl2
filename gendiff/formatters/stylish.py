@@ -9,7 +9,7 @@ def formatter(list_, count=0):
         diff_new = diff_['new']
         diff_result = '    '
 
-        if a.get('children') == None:
+        if a['type'] == 'elem':
             if diff_old != diff_new:
                 if a['value'] == diff_['old']:
                     diff_result = '  - '
@@ -23,9 +23,9 @@ def formatter(list_, count=0):
             result += "{0}{1}: {2}\n".format('    '*count + diff_result, a['key'], a['value'])
         else:
             if diff_old != diff_new:
-                if a['children'] == diff_['old']:
+                if type(diff_old) == dict and type(diff_new) != dict:
                     diff_result = '  - '
-                elif a['children'] == diff_['new']:
+                elif type(diff_old) != dict and type(diff_new) == dict:
                     diff_result = '  + '
                 elif diff_old == None:
                     diff_result = '  + '
