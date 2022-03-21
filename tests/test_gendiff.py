@@ -1,25 +1,28 @@
 from gendiff.scripts.gendiff import generate_diff
 
 
+def test(file1, file2, way_result, format_='stylish'):
+    file_ = open(way_result)
+    result = file_.read()
+    file_.close()
+    a = generate_diff(file1, file2, format_)
+    assert type(a) == str
+    assert result == a
+
+
 def test_gendiff():
-    result = open("./tests/fixtures/flat/result.txt")
-    res = result.read()
-    result.close()
-    result2 = open("./tests/fixtures/recursive/result.txt")
-    res2 = result2.read()
-    result2.close()
-    file1 = "./tests/fixtures/flat/file1.json"
-    file2 = "./tests/fixtures/flat/file2.json"
-    file3 = "./tests/fixtures/flat/file3.yml"
-    file4 = "./tests/fixtures/flat/file4.yaml"
-    file5 = "./tests/fixtures/recursive/file1.json"
-    file6 = "./tests/fixtures/recursive/file2.json"
+    way_flat = "./tests/fixtures/flat/"
+    test(way_flat + "file1.json", way_flat + "file2.json", way_flat + 'result.txt', 'stylish')
+
+    test(way_flat + "file3.yml", way_flat + "file4.yaml", way_flat + 'result.txt', 'stylish')
+
+    test(way_flat + "file1.json", way_flat + "file2.json", way_flat + 'result_plain.txt', 'plain')
     
-    result1 = generate_diff(file1, file2)
-    assert type(generate_diff(file1, file2)) == str
-    assert res == result1
-    #result1 = generate_diff(file3, file4)
-    #assert res == result1
-    #result3 = generate_diff(file5, file6)
-    #assert res2 == result3
+    test(way_flat + "file3.yml", way_flat + "file4.yaml", way_flat + 'result_plain.txt', 'plain')
+    
+    way_recursive = "./tests/fixtures/recursive/"
+    test(way_recursive + "file1.json", way_recursive + "file2.json", way_recursive + 'result.txt', 'stylish')
+
+    #test(way_recursive + "file1.json", way_recursive + "file2.json", way_recursive + 'result_plain.txt', 'plain')
+    
     print("all test's complete")

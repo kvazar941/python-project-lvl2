@@ -62,11 +62,9 @@ def diff_of_list(dict_a, dict_b):
             if type(dict_a[a]) == dict and type(dict_b[a]) == dict:
                 result.append(func4(diff_of_list(dict_a[a], dict_b[a]), *argum))
             else:
-                if dict_a[a] == dict_b[a]:
-                    result.append(func4(dict_b[a], *argum))
                 if dict_a[a] != dict_b[a]:
                     result.append(func4(dict_a[a], *argum))
-                    result.append(func4(dict_b[a], *argum))
+                result.append(func4(dict_b[a], *argum))
         if a in dict_a and a not in dict_b:
             result.append(func4(dict_a[a], a, convert_bool(dict_a[a]), None))
         if a not in dict_a and a in dict_b:
