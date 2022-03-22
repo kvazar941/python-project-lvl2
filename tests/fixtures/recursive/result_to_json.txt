@@ -1,0 +1,28 @@
+{
+  'common': {
+    'follow': {'old': None, 'new': 'false'}
+    'setting1': {'old': 'Value 1', 'new': 'Value 1'}
+    'setting2': {'old': 200, 'new': None}
+    'setting3': {'old': 'true', 'new': 'null'}
+    'setting3': {'old': 'true', 'new': 'null'}
+    'setting4': {'old': None, 'new': 'blah blah'}
+    'setting5': {'old': None, 'new': {'key5': 'value5'}}
+    'setting6': {
+      'doge': {
+        'wow': {'old': '', 'new': 'so much'}
+        'wow': {'old': '', 'new': 'so much'}
+            }
+      'key': {'old': 'value', 'new': 'value'}
+      'ops': {'old': None, 'new': 'vops'}
+        }
+    }
+  'group1': {
+    'baz': {'old': 'bas', 'new': 'bars'}
+    'baz': {'old': 'bas', 'new': 'bars'}
+    'foo': {'old': 'bar', 'new': 'bar'}
+    'nest': {'old': {'key': 'value'}, 'new': 'str'}
+    'nest': {'old': {'key': 'value'}, 'new': 'str'}
+    }
+  'group2': {'old': {'abc': 12345, 'deep': {'id': 45}}, 'new': None}
+  'group3': {'old': None, 'new': {'deep': {'id': {'number': 45}}, 'fee': 100500}}
+}
