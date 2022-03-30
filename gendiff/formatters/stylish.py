@@ -44,7 +44,6 @@ def func_ch(a, count):
 
 def formatter(list_, count=0):
     list_sorted = sorted(list_, key = lambda x: x['key'])
-    #print(list_sorted)
     result = '{\n'
     for a in list_sorted:
         if 'diff' in a:
@@ -59,7 +58,7 @@ def formatter(list_, count=0):
                 result += func_rem(a, count)
                 result += func_add(a, count)
         else:
-            result += "{0}{1}: {2}\n".format('    '*count + '    ', a['key'], formatter(a['children'], count + 1))
-    result += '    '*count + '}'
+            result += "{0}{1}: {2}".format('    '*count + '    ', a['key'], formatter(a['children'], count + 1))
+    result += '    '*count + '}\n'
     return result
 
