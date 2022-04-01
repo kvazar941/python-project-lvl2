@@ -8,8 +8,14 @@ import json
 import yaml
 
 
-args = parce.parce_file()
+#parser = argparse.ArgumentParser(description='Generate diff')
 
+#parser.add_argument('-f', '--format', default='stylish', help='set format of output')
+#parser.add_argument('first_file')
+#parser.add_argument('second_file')
+
+args = parce.parce_file()
+print(args)
 
 def read_file(item):
     if item.split('.')[-1] == 'json':
@@ -18,6 +24,10 @@ def read_file(item):
     if item.split('.')[-1] in ['yml', 'yaml']:
         with open(item) as file_yaml:
             return yaml.load(file_yaml, Loader=yaml.FullLoader)
+
+
+def test_generate_diff():
+    assert True
 
 
 def generate_diff(f_1=args.first_file, f_2=args.second_file, f=args.format):
