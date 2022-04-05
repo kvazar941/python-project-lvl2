@@ -2,12 +2,12 @@ install:
 	poetry install
 
 run:
-	poetry run gendiff
+	poetry run gendiff -h
 
 build:
 	poetry build
 	python3 -m pip install --force-reinstall dist/*.whl
-
+	poetry run pytest
 publish:
 	poetry publish --dry-run
 

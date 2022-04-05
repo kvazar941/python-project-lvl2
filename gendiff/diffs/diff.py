@@ -3,6 +3,7 @@
 
 def diff_of_list(dict_a, dict_b):
     result = []
+    print(dict_a, dict_b)
     a_set = dict_a.keys() - dict_b.keys()
     b_set = dict_b.keys() - dict_a.keys()
     ch_set = dict_a.keys() & dict_b.keys()
