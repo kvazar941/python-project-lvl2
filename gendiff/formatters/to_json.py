@@ -18,9 +18,6 @@ def func1(dict_):
     return dict_result
 
 
-
-
-
 def formatter(list_, count=0):
     list_sorted = sorted(list_, key = lambda x: x['key'])
     result = '{\n'

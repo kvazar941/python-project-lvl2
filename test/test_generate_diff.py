@@ -1,31 +1,49 @@
 from gendiff.scripts.gendiff import generate_diff
 
 
-dir_flat = './test/fixtures/flat/'
-dir_recursive = './test/fixtures/recursive/'
-
-
-test_result = ['result_stylish.txt', 'result_plain.txt', 'result_json.txt']
-
-
-test_data = [('file1.json', "file2.json"),
-            ('file3.yml', "file4.yaml"),
+test_data = [{'file_one': 'file1.json',
+            'file_two': 'file2.json',
+            'stylish': 'result_stylish.txt',
+            'plain': 'result_plain.txt',
+            'json': 'result_json.txt',
+            'dir': './test/fixtures/flat/'
+            },
+            {'file_one': 'file3.yml',
+            'file_two': 'file4.yaml',
+            'stylish': 'result_stylish.txt',
+            'plain': 'result_plain.txt',
+            'json': 'result_json.txt',
+            'dir': './test/fixtures/flat/'
+            },
+            {'file_one': 'file1.json',
+            'file_two': 'file2.json',
+            'stylish': 'result_stylish.txt',
+            'plain': 'result_plain.txt',
+            'json': 'result_json.txt',
+            'dir': './test/fixtures/recursive/'
+            },
+            {'file_one': 'file3.yml',
+            'file_two': 'file4.yaml',
+            'stylish': 'result_stylish.txt',
+            'plain': 'result_plain.txt',
+            'json': 'result_json.txt',
+            'dir': './test/fixtures/recursive/'
+            }
         ]
 
 
-formats = ['stylish', 'plain', 'json']
-
-
 def file_read(way):
-    file_ = open("./test/fixtures/flat/result_stylish.txt")
+    file_ = open(way)
     result = file_.read()
     file_.close()
     return result
 
 
 def test_generate_diff():
-    coll = ["./test/fixtures/flat/file1.json", "./test/fixtures/flat/file2.json", 'stylish']
-    result = file_read("./test/fixtures/flat/result_stylish.txt")
-    test = generate_diff(*coll)
-    assert type(test) == str
-    assert result == test
+    for x in test_data:
+        coll = [x['dir'] + x['file_one'], x['dir'] + x['file_two']]
+        for y in ['stylish', 'plain', 'json']:
+            test = generate_diff(*coll, y)
+            result = file_read(x['dir'] + x[y])
+            assert type(test) == str
+            assert result == test

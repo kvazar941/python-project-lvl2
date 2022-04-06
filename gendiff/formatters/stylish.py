@@ -1,4 +1,5 @@
 """Stylish module"""
+import gendiff.formatters.convert_bool
 
 
 def convert_bool(value):
