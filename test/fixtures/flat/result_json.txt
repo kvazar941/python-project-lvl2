@@ -1,0 +1,7 @@
+{
+  'follow': {'old': 'false'}
+  'host': {'old': 'hexlet.io', 'new': 'hexlet.io'}
+  'proxy': {'old': '123.234.53.22'}
+  'timeout': {'old': 50, 'new': 20}
+  'verbose': {'new': 'true'}
+}
