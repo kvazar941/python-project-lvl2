@@ -1,5 +1,5 @@
 """Plain module"""
-
+#from gendiff.formatters.convert_bool import convert
 
 def convert_bool(value):
     if value == True:
@@ -17,12 +17,12 @@ def formatter(list_, count=0, way=''):
     for a in list_sorted:
         if 'diff' in a:
             diff_ = a['diff']
-            if 'new' in diff_ and 'old' not in diff_:
+            if 'old' not in diff_:
                 if type(diff_['new']) == dict:
                     result += "Property '{0}' was added with value: {1}\n".format(way + a['key'], '[complex value]')
                 else:
                     result += "Property '{0}' was added with value: {1}\n".format(way + a['key'], convert_bool(diff_['new']))
-            if 'new' not in diff_ and 'old' in diff_:
+            if 'new' not in diff_:
                 if type(diff_['old']) == dict:
                     result += "Property '{0}' was removed\n".format(way + a['key'])
                 else:

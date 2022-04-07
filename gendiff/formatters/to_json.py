@@ -1,20 +1,11 @@
 """to json module"""
-
-
-def convert_bool(value):
-    if value == True:
-        return 'true'
-    elif value == False:
-        return 'false'
-    elif value == None:
-        return 'null'
-    return value
+from gendiff.formatters.convert_bool import convert
 
 
 def func1(dict_):
     dict_result = {}
     for a in dict_:
-        dict_result[a] = convert_bool(dict_[a])
+        dict_result[a] = convert(dict_[a])
     return dict_result
 
 
