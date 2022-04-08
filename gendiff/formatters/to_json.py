@@ -2,11 +2,15 @@
 from gendiff.formatters.convert_bool import convert
 
 
+DEFOLT_INDENT = '  '
+
+
 def func1(dict_):
-    dict_result = {}
-    for a in dict_:
-        dict_result[a] = convert(dict_[a])
-    return dict_result
+    return {a: convert(dict_[a]) for a in dict_}
+
+
+def add_str(indent, key, value):
+    return "{0}'{1}': {2}\n".format(indent, key, value)
 
 
 def formatter(list_, count=0):
@@ -14,8 +18,12 @@ def formatter(list_, count=0):
     result = '{\n'
     for a in list_sorted:
         if 'diff' in a:
-            result += "{0}'{1}': {2}\n".format('  '*count + '  ', a['key'], func1(a['diff']))
-        if 'children' in a:
-            result += "{0}'{1}': {2}".format('  '*count + '  ', a['key'], formatter(a['children'], count + 1))
-    result += '  '*count + '}\n'
+            elem = func1(a['diff'])
+        else:
+            elem = formatter(a['children'], count + 1)
+        result += add_str(DEFOLT_INDENT*(count + 1), a['key'], elem)
+    if count == 0:
+        result += DEFOLT_INDENT*count + '}\n'
+    else:
+        result += DEFOLT_INDENT*count + '}'
     return result

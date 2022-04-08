@@ -3,11 +3,11 @@ from gendiff.formatters.convert_bool import convert
 
 
 DEFOLT_INDENT = '    '
-INDENTS = {'defolt': '    ', 'new': '  + ', 'old': '  - '}
 
 
 def add_str(count, indent, key, elem):
-    return "{0}{1}: {2}\n".format(DEFOLT_INDENT*count + indent, key, convert(elem))
+    result_indent = DEFOLT_INDENT*count + indent
+    return f"{result_indent}{key}: {convert(elem)}\n"
 
 
 def format_dict(dict_, count):
@@ -20,7 +20,7 @@ def format_dict(dict_, count):
     return result
         
 
-def func_add(dict_, count, key, indent=INDENTS['defolt']):
+def func_add(dict_, count, key, indent=DEFOLT_INDENT):
     diff_ = dict_['diff']
     if isinstance(diff_[key], dict):
         elem = format_dict(diff_[key], count + 1)
