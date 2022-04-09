@@ -25,11 +25,11 @@ def func_add(way, key, diff):
     value = '[complex value]'
     if not isinstance(diff['new'], dict):
         value = format_conv(diff['new'])
-    return f"Property '{way + key}' was added with value: {value}\n"
+    return add_key(way + key, value)
 
     
-def func_rem(way, a):
-    return rem_key(way + a['key'])
+def func_rem(way, key):
+    return rem_key(way + key)
 
 
 def func_upd(way, a):
@@ -53,7 +53,7 @@ def formatter(list_, count=0, way=''):
             if 'old' not in diff_:
                 result += func_add(way, a['key'], a['diff'])
             if 'new' not in diff_:
-                result += func_rem(way, a)
+                result += func_rem(way, a['key'])
             if 'new' in diff_ and 'old' in diff_:
                 result += func_upd(way, a)
         else:
