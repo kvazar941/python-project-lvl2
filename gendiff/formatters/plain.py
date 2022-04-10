@@ -36,11 +36,10 @@ def func_upd(way, a):
     diff_ = a['diff']
     if type(diff_['old']) == dict and type(diff_['new']) != dict:
         return upd_key(way + a['key'], '[complex value]', format_conv(diff_['new']))
-    elif type(diff_['old']) != dict and type(diff_['new']) == dict:
+    if type(diff_['old']) != dict and type(diff_['new']) == dict:
         return upd_key(way + a['key'], format_conv(diff_['old']), '[complex value]')
-    else:
-        if diff_['old'] != diff_['new']:
-            return upd_key(way + a['key'], format_conv(diff_['old']), format_conv(diff_['new']))
+    if diff_['old'] != diff_['new']:
+        return upd_key(way + a['key'], format_conv(diff_['old']), format_conv(diff_['new']))
     return ''
 
 
