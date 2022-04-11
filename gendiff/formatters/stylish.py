@@ -1,34 +1,34 @@
 """Stylish module"""
 from gendiff.formatters.convert_bool import convert
+from functools import reduce
 
 
 DEFOLT_INDENT = '    '
 
 
-def format_dict(dict_, count):
+def new_format(indent, key, value):
+    return {'indent': indent, 'key': key, 'value': value}
+
+
+def convert_dict(dict_, initial_indent):
     if not isinstance(dict_, dict):
         return dict_
-    result = '{\n'
-    for key in dict_:
-        indent = DEFOLT_INDENT * (count + 1)
-        value = format_dict(dict_[key], count + 1)
-        result += elem_to_str(indent, key, value, count)
-    result += DEFOLT_INDENT*count + '}'
+    indent = initial_indent + DEFOLT_INDENT
+    return [new_format(indent, key, convert_dict(dict_[key], indent)) for key in dict_]
+
+
+def get_diff_key(diff, key, indent):
+    indent_result = indent + DEFOLT_INDENT
+    result = []
+    if 'old' in diff:
+        old = diff['old']
+        value = convert_dict(old, indent_result) if type(old) == dict else old
+        result.append(new_format(indent + '  - ', key, value))
+    if 'new' in diff:
+        new = diff['new']
+        value = convert_dict(new, indent_result) if type(new) == dict else new
+        result.append(new_format(indent + '  + ', key, value))
     return result
-
-
-def elem_to_str(indent, key, value, count):
-    if isinstance(value, list):
-        val = f"{format_elem(value, count + 1)}"
-    elif isinstance(value, dict):
-        val = f"{format_dict(value, count + 1)}\n"
-    else:
-        val = f"{convert(value)}\n"
-    return f"{indent}{key}: {val}"
-
-
-def new_format(indent, key, value):
-    return [{'indent': indent, 'key': key, 'value': value}]
 
 
 def convert_format(list_, count_recursion=0):
@@ -49,25 +49,28 @@ def convert_format(list_, count_recursion=0):
         if 'diff' in dict_:
             diff = dict_['diff']
             if diff.get('old') != diff.get('new'):
-                if 'old' in diff:
-                    result += new_format(indent + '  - ', key, diff['old'])
-                if 'new' in diff:
-                    result += new_format(indent + '  + ', key, diff['new'])
+                result.extend(get_diff_key(diff, key, indent))
             else:
-                result += new_format(indent + '    ', key, diff['new'])
+                result.append(new_format(indent + DEFOLT_INDENT, key, diff['new']))
         else:
-            children = dict_['children']
-            value = convert_format(children, count_recursion + 1)
-            result += new_format(indent + '    ', key, value)
+            value = convert_format(dict_['children'], count_recursion + 1)
+            result.append(new_format(indent + DEFOLT_INDENT, key, value))    
     return result
+
+
+def convert_to_str(indent, key, value, count):
+    if isinstance(value, list):
+        return f"{indent}{key}: {format_elem(value, count + 1)}"
+    return f"{indent}{key}: {convert(value)}\n"
 
 
 def format_elem(list_, count=0):
-    result = '{\n'
-    for x in list_:
-        result += elem_to_str(x['indent'], x['key'], x['value'], count)
-    result += '    ' * count + '}\n'
-    return result
+    result = [convert_to_str(dict_['indent'], 
+                             dict_['key'], 
+                             dict_['value'], 
+                             count) 
+                             for dict_ in list_]
+    return '{\n' + "".join(result) + DEFOLT_INDENT * count + '}\n'
 
 
 def formatter(list_):
