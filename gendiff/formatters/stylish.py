@@ -31,6 +31,22 @@ def get_diff_key(diff, key, indent):
     return result
 
 
+def get_diff_dict(dict_, count):
+    result = []
+    indent = DEFOLT_INDENT*count
+    key = dict_['key']
+    if 'diff' in dict_:
+        diff = dict_['diff']
+        if diff.get('old') != diff.get('new'):
+            result.extend(get_diff_key(diff, key, indent))
+        else:
+            result.append(new_format(indent + DEFOLT_INDENT, key, diff['new']))
+    else:
+        value = convert_format(dict_['children'], count + 1)
+        result.append(new_format(indent + DEFOLT_INDENT, key, value))
+    return result
+
+
 def convert_format(list_, count_recursion=0):
     """
     The function converts the format {'key': key} to {}.
@@ -44,17 +60,7 @@ def convert_format(list_, count_recursion=0):
     list_sorted = sorted(list_, key = lambda x: x['key'])
     result = []
     for dict_ in list_sorted:
-        key = dict_['key']
-        indent = DEFOLT_INDENT*count_recursion
-        if 'diff' in dict_:
-            diff = dict_['diff']
-            if diff.get('old') != diff.get('new'):
-                result.extend(get_diff_key(diff, key, indent))
-            else:
-                result.append(new_format(indent + DEFOLT_INDENT, key, diff['new']))
-        else:
-            value = convert_format(dict_['children'], count_recursion + 1)
-            result.append(new_format(indent + DEFOLT_INDENT, key, value))    
+        result.extend(get_diff_dict(dict_, count_recursion))
     return result
 
 
@@ -65,11 +71,7 @@ def convert_to_str(indent, key, value, count):
 
 
 def format_elem(list_, count=0):
-    result = [convert_to_str(dict_['indent'], 
-                             dict_['key'], 
-                             dict_['value'], 
-                             count) 
-                             for dict_ in list_]
+    result = [convert_to_str(dict_['indent'], dict_['key'], dict_['value'], count) for dict_ in list_]
     return '{\n' + "".join(result) + DEFOLT_INDENT * count + '}\n'
 
 
