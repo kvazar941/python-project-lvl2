@@ -2,7 +2,7 @@
 from gendiff.formatters.convert_bool import convert
 
 
-DEFOLT_INDENT = '    '
+DEFAULT_INDENT = '    '
 
 
 def get_indent(key):
@@ -13,15 +13,12 @@ def get_indent(key):
     return indent
 
 
+def is_no_change(dict_):
+    return dict_['diff'].get('old') == dict_['diff'].get('new')
+
+
 def new_format(indent, key, value):
     return {'indent': indent, 'key': key, 'value': value}
-
-
-def convert_dict(dict_, initial_indent):
-    if not isinstance(dict_, dict):
-        return dict_
-    indent = initial_indent + DEFOLT_INDENT
-    return [new_format(indent, key, convert_dict(dict_[key], indent)) for key in dict_]
 
 
 def convert_format(list_, count_recursion=0):
@@ -34,49 +31,49 @@ def convert_format(list_, count_recursion=0):
     Returns:
         int
     """
+    indent = DEFAULT_INDENT * count_recursion
+    indent_result = indent + DEFAULT_INDENT
     result = []
 
+
+    def convert_dict(dict_, count=count_recursion + 1):
+        if not isinstance(dict_, dict):
+            return dict_
+        indent1 = DEFAULT_INDENT * (count + 1)
+        return [new_format(indent1, key, convert_dict(dict_[key], count+1)) 
+                for key in dict_]
+
+
     list_diff = list(filter(lambda x: 'diff' in x, list_))
-    list_children = list(filter(lambda x: 'children' in x, list_))
 
-    indent = DEFOLT_INDENT*count_recursion
+    for x in filter(lambda x: is_no_change(x), list_diff):
+        result.append(new_format(indent_result, x['key'], x['diff']['new']))
 
-    #list_diff_no = list(filter(lambda x: x.get('old') != x.get('new'), list_diff))
-    #list_diff_yes = list(filter(lambda x: x.get('old') == x.get('new'), list_diff))
-    #for z in list_diff_yes:
-        #diff_z = z['diff']
-        #print(list_diff_yes)
-        #result.append(new_format(indent + DEFOLT_INDENT, z['key'], diff_z['new']))
-    for a in list_diff:
-        diff = a['diff']
-        key = a['key']
-        if diff.get('old') != diff.get('new'):
-            for key1 in diff:
-                val = diff[key1]
-                value = convert_dict(val, indent + DEFOLT_INDENT) if type(val) == dict else val
-                result.append(new_format(indent + get_indent(key1), key, value))
-        else:
-            result.append(new_format(indent + DEFOLT_INDENT, key, diff['new']))
-    for b in list_children:
-        key = b['key']
+    for y in filter(lambda x: not is_no_change(x), list_diff):
+        for key in y['diff']:
+            val = y['diff'][key]
+            value = convert_dict(val) if isinstance(val, dict) else val
+            result.append(new_format(indent + get_indent(key), y['key'], value))
+    for b in filter(lambda x: 'children' in x, list_):
         value = convert_format(b['children'], count_recursion + 1)
-        result.append(new_format(indent + DEFOLT_INDENT, key, value))
+        result.append(new_format(indent_result, b['key'], value))
 
-    result2 = sorted(result, key = lambda x: x['key'])
-    return result2 # [{}, {}, {}]
-
-
-def convert_to_str(indent, key, value, count):
-    if isinstance(value, list):
-        return f"{indent}{key}: {format_elem(value, count + 1)}"
-    return f"{indent}{key}: {convert(value)}\n"
+    return sorted(result, key = lambda x: x['key'])
 
 
-def format_elem(list_, count=0):
-    result = [convert_to_str(dict_['indent'], dict_['key'], dict_['value'], count) for dict_ in list_]
-    return '{\n' + "".join(result) + DEFOLT_INDENT * count + '}\n'
+def convert_to_str(list_, count=0):
+    result = []
+    for dict_ in list_:
+        indent = dict_['indent']
+        key = dict_['key']
+        value = dict_['value']
+        if isinstance(value, list):
+            result.append(f"{indent}{key}: {convert_to_str(value, count + 1)}")
+        else:
+            result.append(f"{indent}{key}: {convert(value)}\n")
+    return '{\n' + "".join(result) + DEFAULT_INDENT * count + '}\n'
 
 
 def formatter(list_):
-    return format_elem(convert_format(list_))
+    return convert_to_str(convert_format(list_))
 
