@@ -1,29 +1,25 @@
 """to json module"""
 from gendiff.formatters.convert_bool import convert
+from gendiff.diff import get_key, get_diff_node, get_children
+from gendiff.diff import is_node, is_not_node
 
 
 DEFOLT_INDENT = '  '
 
 
-def func1(dict_):
-    return {a: convert(dict_[a]) for a in dict_}
-
-
-def add_str(indent, key, value):
-    return f"{indent}'{key}': {value}\n"
+def formate_value(dict_):
+    return {key: convert(dict_[key]) for key in dict_}
 
 
 def formatter(list_, count=0):
-    list_sorted = sorted(list_, key = lambda x: x['key'])
+    list_sorted = sorted(list_, key = lambda x: get_key(x))
     result = '{\n'
-    for a in list_sorted:
-        if 'diff' in a:
-            elem = func1(a['diff'])
+    for element in list_sorted:
+        if is_node(element):
+            value = formate_value(get_diff_node(element))
         else:
-            elem = formatter(a['children'], count + 1)
-        result += add_str(DEFOLT_INDENT*(count + 1), a['key'], elem)
-    if count == 0:
-        result += DEFOLT_INDENT*count + '}\n'
-    else:
-        result += DEFOLT_INDENT*count + '}'
+            value = formatter(get_children(element), count + 1)
+        result += f"{DEFOLT_INDENT*(count + 1)}'{get_key(element)}': {value}\n"
+    result += DEFOLT_INDENT*count + '}'
+    result += '\n' if count == 0 else ''
     return result

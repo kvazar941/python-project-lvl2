@@ -10,11 +10,6 @@ build:
 	poetry run pytest
 	poetry run gendiff -h
 	gendiff -f stylish ./test/fixtures/flat/file1.json ./test/fixtures/flat/file2.json
-	gendiff -f plain ./test/fixtures/flat/file1.json ./test/fixtures/flat/file2.json
-	gendiff -f json ./test/fixtures/flat/file1.json ./test/fixtures/flat/file2.json
-	gendiff -f stylish ./test/fixtures/recursive/file1.json ./test/fixtures/recursive/file2.json
-	gendiff -f plain ./test/fixtures/recursive/file1.json ./test/fixtures/recursive/file2.json
-	gendiff -f json ./test/fixtures/recursive/file1.json ./test/fixtures/recursive/file2.json
 
 publish:
 	poetry publish --dry-run

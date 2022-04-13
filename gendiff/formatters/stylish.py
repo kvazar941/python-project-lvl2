@@ -1,24 +1,20 @@
 """Stylish module"""
 from gendiff.formatters.convert_bool import convert
+from gendiff.diff import is_key_no_change, is_key_change
+from gendiff.diff import is_old, is_new
+from gendiff.diff import is_node, is_not_node
+from gendiff.diff import get_key, get_diff_node, get_children
+from gendiff.diff import get_diff_old, get_diff_new
 
 
 DEFAULT_INDENT = '    '
 
 
 def get_indent(key):
-    if key == 'old':
-        indent = '  - '
-    if key == 'new':
-        indent = '  + '
-    return indent
-
-
-def is_key_no_change(dict_):
-    return dict_['diff'].get('old') == dict_['diff'].get('new')
-
-
-def is_key_change(dict_):
-    return not is_key_no_change(dict_)
+    if is_old(key):
+        return '  - '
+    if is_new(key):
+        return '  + '
 
 
 def convert_dict(dict_, count):
@@ -26,6 +22,15 @@ def convert_dict(dict_, count):
         return dict_
     indent = DEFAULT_INDENT * (count + 1)
     return [(indent, key, convert_dict(dict_[key], count+1)) for key in dict_]
+
+
+def get_list_changed(node, indent, count):
+    result = []
+    for key in get_diff_node(node):
+        current_indent = indent + get_indent(key)
+        current_value = convert_dict(get_diff_node(node)[key], count)
+        result.append((current_indent, get_key(node), current_value))
+    return result
 
 
 def convert_format(list_, count_recursion=0):
@@ -57,21 +62,14 @@ def convert_format(list_, count_recursion=0):
     indent = DEFAULT_INDENT * count_recursion
     indent_result = indent + DEFAULT_INDENT
     result = []
-    list_diff = list(filter(lambda x: 'diff' in x, list_))
-
-    for x in filter(is_key_no_change, list_diff):
-        result.append((indent_result, x['key'], x['diff']['new']))
-
-    for y in filter(is_key_change, list_diff):
-        for key in y['diff']:
-            current_indent = indent + get_indent(key)
-            current_value = convert_dict(y['diff'][key], count_recursion + 1)
-            result.append((current_indent, y['key'], current_value))
-
-    for b in filter(lambda x: 'children' in x, list_):
-        value = convert_format(b['children'], count_recursion + 1)
-        result.append((indent_result, b['key'], value))
-
+    list_node = list(filter(is_node, list_))
+    for node in filter(is_key_no_change, list_node):
+        result.append((indent_result, get_key(node), get_diff_new(node)))
+    for node in filter(is_key_change, list_node):
+        result.extend(get_list_changed(node, indent, count_recursion + 1))
+    for node in filter(is_not_node, list_):
+        value = convert_format(get_children(node), count_recursion + 1)
+        result.append((indent_result, get_key(node), value))
     return sorted(result, key = lambda x: x[1])
 
 
@@ -108,7 +106,6 @@ def convert_to_str(list_, count=0):
     Returns: str
 
     """
-
     result = []
     for tuple_ in list_:
         indent, key, value = tuple_

@@ -1,5 +1,8 @@
 """Plain module"""
 from gendiff.formatters.convert_bool import convert
+from gendiff.diff import is_key_added, is_key_removed, is_key_updated
+from gendiff.diff import get_key, get_diff_new, get_diff_old, get_children
+from gendiff.diff import is_node, is_not_node
 
 
 COMPLEX_VALUE = '[complex value]'
@@ -12,52 +15,28 @@ def format_conv(value):
         return f"'{value}'"
 
 
-def is_key_added(dict_):
-    return 'old' not in dict_['diff']
-
-
-def is_key_removed(dict_):
-    return 'new' not in dict_['diff']
-
-
-def is_key_upd(dict_):
-    if 'old' in dict_['diff'] and 'new' in dict_['diff']:
-        return dict_['diff']['old'] != dict_['diff']['new']
-    return False
-
-
 def is_complex(value):
     return COMPLEX_VALUE if isinstance(value, dict) else format_conv(value)
 
 
-def add_key(way, value):
-    return f"Property '{way}' was added with value: {value}\n"
-
-
-def rem_key(way):
-    return f"Property '{way}' was removed\n"
-
-
-def upd_key(way, old, new):
-    return f"Property '{way}' was updated. From {old} to {new}\n"
-
-
-def func_add(way, key, diff):
-    return add_key(way + key, is_complex(diff['new']))
+def create_string_add_key(way, node):
+    way_result = way + get_key(node)
+    value = is_complex(get_diff_new(node))
+    return f"Property '{way_result}' was added with value: {value}\n"
 
     
-def func_rem(way, key):
-    return rem_key(way + key)
+def create_string_removed_key(way, node):
+    return f"Property '{way + get_key(node)}' was removed\n"
 
 
-def func_upd(way, a):
-    way_result = way + a['key']
-    old = is_complex(a['diff']['old'])
-    new = is_complex(a['diff']['new'])
-    return upd_key(way_result, old, new)
+def create_string_updated_key(way, node):
+    way_result = way + get_key(node)
+    old = is_complex(get_diff_old(node))
+    new = is_complex(get_diff_new(node))
+    return f"Property '{way_result}' was updated. From {old} to {new}\n"
 
 
-def formatter(list_, count=0, way=''):
+def formatter(list_, way=''):
     """
     The function converts the format 
     [
@@ -79,18 +58,19 @@ def formatter(list_, count=0, way=''):
     Returns: str
 
     """
-    list_sorted = sorted(list_, key = lambda x: x['key'])
-    result = ''
 
-    for key in list_sorted:
-        if 'diff' in key:
-            if is_key_added(key):
-                result += func_add(way, key['key'], key['diff'])
-            if is_key_removed(key):
-                result += func_rem(way, key['key'])
-            if is_key_upd(key):
-                result += func_upd(way, key)
+    list_sorted = sorted(list_, key = lambda x: get_key(x))
+    result = ''
+    for node in list_sorted:
+        #result += create_string_node(node)
+        if is_node(node):
+            if is_key_added(node):
+                result += create_string_add_key(way, node)
+            if is_key_removed(node):
+                result += create_string_removed_key(way, node)
+            if is_key_updated(node):
+                result += create_string_updated_key(way, node)
         else:
-            result += formatter(key['children'], count + 1, way + key['key'] + '.')
+            result += formatter(get_children(node), way + get_key(node) + '.')
     return result
 

@@ -5,18 +5,19 @@ from gendiff import parce, diff, read_file
 from gendiff.formatters import stylish, plain, to_json
 
 
-def generate_diff(f_1, f_2, f='stylish'):
+def generate_diff(first_file, second_file, format_='stylish'):
     """
-    main code
+    Еhe function prints to the screen the difference between two files 
+    in different formats
 
     Returns:
         str
     """
-    diffs = diff.get_diff(read_file.read(f_1), read_file.read(f_2))
-    if f == 'plain':
+    diffs = diff.get_diff(read_file.read(first_file), read_file.read(second_file))
+    if format_ == 'plain':
         print(plain.formatter(diffs))
         return plain.formatter(diffs)
-    elif f == 'json':
+    elif format_ == 'json':
         print(to_json.formatter(diffs))
         return to_json.formatter(diffs)
     else:

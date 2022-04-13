@@ -1,17 +1,22 @@
-#!/usr/bin/env/python3
-"""module read_file"""
-import json, yaml
+"""module read_file."""
+import json
+
+import yaml
 
 
 def read(way_to_file):
     """
     Read file.
 
+    Args:
+        way_to_file: str
+
     Returns:
         dict
     """
-    if way_to_file.split('.')[-1] == 'json':
-        return json.load(open(way_to_file))
-    if way_to_file.split('.')[-1] in ['yml', 'yaml']:
-        with open(way_to_file) as file_yaml:
-            return yaml.load(file_yaml, Loader=yaml.FullLoader)
+    with open(way_to_file) as file_name:
+        format_file = way_to_file.split('.')[-1]
+        if format_file == 'json':
+            return json.load(open(way_to_file))
+        if format_file in ['yml', 'yaml']:
+            return yaml.load(file_name, Loader=yaml.FullLoader)
