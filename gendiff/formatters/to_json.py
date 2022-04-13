@@ -10,7 +10,7 @@ def func1(dict_):
 
 
 def add_str(indent, key, value):
-    return "{0}'{1}': {2}\n".format(indent, key, value)
+    return f"{indent}'{key}': {value}\n"
 
 
 def formatter(list_, count=0):
