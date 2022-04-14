@@ -1,11 +1,8 @@
-"""Stylish module"""
+"""Stylish module."""
+from gendiff.diff import (get_children, get_diff_new, get_diff_node, get_key,
+                          is_key_change, is_key_no_change, is_new, is_node,
+                          is_not_node, is_old)
 from gendiff.formatters.convert_bool import convert
-from gendiff.diff import is_key_no_change, is_key_change
-from gendiff.diff import is_old, is_new
-from gendiff.diff import is_node, is_not_node
-from gendiff.diff import get_key, get_diff_node, get_children
-from gendiff.diff import get_diff_old, get_diff_new
-
 
 DEFAULT_INDENT = '    '
 
@@ -21,36 +18,25 @@ def convert_dict(dict_, count):
     if not isinstance(dict_, dict):
         return dict_
     indent = DEFAULT_INDENT * (count + 1)
-    return [(indent, key, convert_dict(dict_[key], count+1)) for key in dict_]
+    list_result = []
+    for node in dict_:
+        children = convert_dict(dict_[node], count + 1)
+        list_result.append((indent, node, children))
+    return list_result
 
 
 def get_list_changed(node, indent, count):
-    result = []
+    list_changed = []
     for key in get_diff_node(node):
         current_indent = indent + get_indent(key)
         current_value = convert_dict(get_diff_node(node)[key], count)
-        result.append((current_indent, get_key(node), current_value))
-    return result
+        list_changed.append((current_indent, get_key(node), current_value))
+    return list_changed
 
 
 def convert_format(list_, count_recursion=0):
     """
-    The function converts the format 
-    [
-        {'key': key, 'diff': {'old': old, 'new': new}},
-        {'key': key, 'children': ['children']},
-        ...
-    ] 
-    to 
-    [
-        (indent, key, value),
-        (indent, key, [
-            (indent, key, value)
-            (indent, key, value),
-        ...
-        ]
-        ...
-    ].
+    The function converts the format.
 
     Args:
         list_: list

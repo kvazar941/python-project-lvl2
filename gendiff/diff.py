@@ -1,48 +1,54 @@
-"""Diff module"""
+"""Diff module."""
+
+OLD = 'old'
+NEW = 'new'
+KEY = 'key'
+DIFF = 'diff'
+CHILDREN = 'children'
 
 
 def is_all_dict(*args):
-    return all([isinstance(x, dict) for x in args])
+    return all([isinstance(argument, dict) for argument in args])
 
 
 def is_old(key):
-    return key == 'old'
+    return key == OLD
 
 
 def is_new(key):
-    return key == 'new'
+    return key == NEW
 
 
 def get_key(node):
-    return node['key']
+    return node[KEY]
 
 
 def get_diff_node(node):
-    return node['diff']
+    return node[DIFF]
 
 
 def get_diff_old(node):
-    return node['diff']['old']
+    return node[DIFF][OLD]
 
 
 def get_diff_new(node):
-    return node['diff']['new']
+    return node[DIFF][NEW]
 
 
 def get_children(node):
-    return node['children']
+    return node[CHILDREN]
 
 
 def is_node(node):
-    return 'diff' in node
+    return DIFF in node
 
 
 def is_not_node(node):
-    return 'children' in node
+    return CHILDREN in node
 
 
 def is_key_no_change(node):
-    return get_diff_node(node).get('old') == get_diff_node(node).get('new')
+    return get_diff_node(node).get(OLD) == get_diff_node(node).get(NEW)
 
 
 def is_key_change(node):
@@ -50,51 +56,51 @@ def is_key_change(node):
 
 
 def is_key_added(node):
-    return 'old' not in get_diff_node(node)
+    return OLD not in get_diff_node(node)
 
 
 def is_key_removed(node):
-    return 'new' not in get_diff_node(node)
+    return NEW not in get_diff_node(node)
 
 
 def is_key_updated(node):
-    if 'old' in get_diff_node(node) and 'new' in get_diff_node(node):
+    if OLD in get_diff_node(node) and NEW in get_diff_node(node):
         return get_diff_old(node) != get_diff_new(node)
     return False
 
 
 def create_format(key, dict_a, dict_b):
     """
-    Code.
+    Create a dictionary with data about changing one key.
 
     Args:
-        num_one: int
-        num_two: int
+        key: string
+        dict_a: dict
+        dict_b: dict
 
     Returns:
-        int
+        dict
     """
     if is_all_dict(dict_a.get(key), dict_b.get(key)):
-        return {'key': key, 'children': get_diff(dict_a[key], dict_b[key])}
+        return {KEY: key, CHILDREN: get_diff(dict_a[key], dict_b[key])}
     node = {}
     if key in dict_a:
-        node['old'] = dict_a[key]
+        node[OLD] = dict_a.get(key)
     if key in dict_b:
-        node['new'] = dict_b[key]
-    return {'key': key, 'diff': node}
+        node[NEW] = dict_b.get(key)
+    return {KEY: key, DIFF: node}
 
 
 def get_diff(dict_a, dict_b):
     """
-    Code.
+    Create a list of dictionaries with change data for all keys.
 
     Args:
-        num_one: int
-        num_two: int
+        dict_a: dict
+        dict_b: dict
 
     Returns:
-        int
+        dict
     """
     key_set = dict_a.keys() | dict_b.keys()
     return [create_format(key, dict_a, dict_b) for key in key_set]
-

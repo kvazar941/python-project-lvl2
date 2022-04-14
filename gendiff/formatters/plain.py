@@ -1,9 +1,8 @@
-"""Plain module"""
+"""Plain module."""
+from gendiff.diff import (get_children, get_diff_new, get_diff_old, get_key,
+                          is_key_added, is_key_removed, is_key_updated,
+                          is_node, is_not_node)
 from gendiff.formatters.convert_bool import convert
-from gendiff.diff import is_key_added, is_key_removed, is_key_updated
-from gendiff.diff import get_key, get_diff_new, get_diff_old, get_children
-from gendiff.diff import is_node, is_not_node
-
 
 COMPLEX_VALUE = '[complex value]'
 
