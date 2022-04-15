@@ -14,20 +14,30 @@ def get_indent(key):
         return '  + '
 
 
-def convert_dict(dict_, count):
-    if not isinstance(dict_, dict):
-        return convert(dict_)
+def convert_dict(complex_value, count):
+    """
+    Get the complex value formatted.
+
+    Args:
+        complex_value: dict
+        count: int
+
+    Returns:
+        list
+    """
+    if not isinstance(complex_value, dict):
+        return convert(complex_value)
     indent = DEFAULT_INDENT * (count + 1)
     list_result = []
-    for node in dict_:
-        children = convert_dict(dict_[node], count + 1)
+    for node in complex_value:
+        children = convert_dict(complex_value[node], count + 1)
         list_result.append((indent, node, children))
     return list_result
 
 
 def get_list_changed(node, indent, count):
     """
-    The function converts the format.
+    Get a list of key changes.
 
     Args:
         node: dict
@@ -49,30 +59,28 @@ def get_list_changed(node, indent, count):
     return list_changed
 
 
-def convert_format(list_, count_recursion=0):
+def convert_format(list_dict, count=0):
     """
-    The function converts the format.
+    Create a new format.
 
         Convert format from {key: 'key', diff: {'old': old, 'new': new}}
                          to ('    ', key, old/new)
 
     Args:
-        list_: list
-        count_recursion: int
+        list_dict: list
+        count: int
 
     Returns:
         list
     """
-    indent = DEFAULT_INDENT * count_recursion
-    indent_result = indent + DEFAULT_INDENT
-    result = []
-
-    for node in filter(is_node, list_):
-        result.extend(get_list_changed(node, indent, count_recursion + 1))
-    for node in filter(is_not_node, list_):
-        value = convert_format(get_children(node), count_recursion + 1)
-        result.append((indent_result, get_key(node), value))
-    return sorted(result, key=lambda key_node: key_node[1])
+    list_tuple = []
+    indent = DEFAULT_INDENT * count
+    for node in filter(is_node, list_dict):
+        list_tuple.extend(get_list_changed(node, indent, count + 1))
+    for key in filter(is_not_node, list_dict):
+        curr_value = convert_format(get_children(key), count + 1)
+        list_tuple.append((indent + DEFAULT_INDENT, get_key(key), curr_value))
+    return sorted(list_tuple, key=lambda key_node: key_node[1])
 
 
 def convert_to_str(list_tuple, count=0):
@@ -87,10 +95,7 @@ def convert_to_str(list_tuple, count=0):
         str
     """
     list_string = []
-    #if not isinstance(list_tuple, list):
-    #    return '{0}{1}: {2}'.format(*list_tuple)
-    
-    #children = 
+
     def is_list(checked_value):
         if isinstance(checked_value, list):
             return f'{convert_to_str(checked_value, count + 1)}'
