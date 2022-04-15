@@ -1,11 +1,11 @@
-"""convert_bool module"""
+"""convert_bool module."""
 
 
-def convert(value):
-    if value == True:
+def convert(checked_value):
+    if checked_value is True:
         return 'true'
-    elif value == False:
+    elif checked_value is False:
         return 'false'
-    elif value == None:
+    elif checked_value is None:
         return 'null'
-    return value
+    return checked_value
