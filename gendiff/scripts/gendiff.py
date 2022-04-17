@@ -1,6 +1,6 @@
 #!/usr/bin/env/python3
 """module gendiff."""
-from gendiff import parce, diff, read_file
+from gendiff import diff, parce, read_file
 from gendiff.formatters import json, plain, stylish
 
 
