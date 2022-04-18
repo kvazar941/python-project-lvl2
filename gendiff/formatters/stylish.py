@@ -99,14 +99,14 @@ def convert_to_str(list_tuple, count=0):
     def is_list(checked_value):
         if isinstance(checked_value, list):
             return f'{convert_to_str(checked_value, count + 1)}'
-        return f'{checked_value}\n'
+        return f'{checked_value}'
     list_string = []
     for tuple_ in list_tuple:
         indent, key, key_value = tuple_
         list_string.append(f'{indent}{key}: {is_list(key_value)}')
-    if count > 0:
-        return '{\n' + ''.join(list_string) + DEFAULT_INDENT * count + '}\n'
-    return '{\n' + ''.join(list_string) + DEFAULT_INDENT * count + '}'
+    list_string.insert(0, '{')
+    list_string.append(DEFAULT_INDENT * count + '}')
+    return '\n'.join(list_string)
 
 
 def formatter(list_):
