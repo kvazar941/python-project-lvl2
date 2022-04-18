@@ -108,4 +108,4 @@ def convert_to_str(list_tuple, count=0):
 
 
 def formatter(list_):
-    return convert_to_str(convert_format(list_)) + '\n'
+    return convert_to_str(convert_format(list_))
