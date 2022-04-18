@@ -104,7 +104,9 @@ def convert_to_str(list_tuple, count=0):
     for tuple_ in list_tuple:
         indent, key, key_value = tuple_
         list_string.append(f'{indent}{key}: {is_list(key_value)}')
-    return '{\n' + ''.join(list_string) + DEFAULT_INDENT * count + '}\n'
+    if count > 0:
+        return '{\n' + ''.join(list_string) + DEFAULT_INDENT * count + '}\n'
+    return '{\n' + ''.join(list_string) + DEFAULT_INDENT * count + '}'
 
 
 def formatter(list_):
