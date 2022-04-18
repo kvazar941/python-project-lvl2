@@ -20,12 +20,9 @@ def generate_diff(first_file, second_file, output_format='stylish'):
     data_second_file = read_file.read(second_file)
     diffs = diff.get_diff(data_first_file, data_second_file)
     if output_format == 'plain':
-        print(plain.formatter(diffs))
         return plain.formatter(diffs)
     if output_format == 'json':
-        print(json.formatter(diffs))
         return json.formatter(diffs)
-    print(stylish.formatter(diffs))
     return stylish.formatter(diffs)
 
 
