@@ -55,10 +55,8 @@ def get_string_node(way, node):
             string_node = create_string_removed_key(way, node)
         if is_key_updated(node):
             string_node = create_string_updated_key(way, node)
-    else:
-        current_way = f'{way}{get_key(node)}.'
-        string_node = formatter(get_children(node), current_way)
-    return string_node
+        return string_node
+    return formatter(get_children(node), f'{way}{get_key(node)}.')
 
 
 def formatter(list_elements, way=''):
@@ -79,5 +77,5 @@ def formatter(list_elements, way=''):
     """
     list_sorted = sorted(list_elements, key=lambda element: get_key(element))
     list_string = [get_string_node(way, node) for node in list_sorted]
-    list_sorted = [string for string in list_string if string != '']
-    return '\n'.join(list_sorted)
+    list_filtered = [string for string in list_string if string != '']
+    return '\n'.join(list_filtered)

@@ -1,7 +1,6 @@
 from gendiff.scripts.gendiff import generate_diff
 
-
-test_data = [{'file_one': 'file1.json',
+TEST_DATA = [{'file_one': 'file1.json',
             'file_two': 'file2.json',
             'stylish': 'result_stylish.txt',
             'plain': 'result_plain.txt',
@@ -40,7 +39,7 @@ def file_read(way):
 
 
 def test_generate_diff():
-    for x in test_data:
+    for x in TEST_DATA:
         coll = [x['dir'] + x['file_one'], x['dir'] + x['file_two']]
         for y in ['stylish', 'plain', 'json']:
             test = generate_diff(*coll, y)
