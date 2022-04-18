@@ -1,7 +1,7 @@
 """Plain module."""
 from gendiff.diff import (get_children, get_diff_new, get_diff_old, get_key,
-                          is_key_added, is_key_change, is_key_removed,
-                          is_key_updated, is_node)
+                          is_key_added, is_key_removed, is_key_updated,
+                          is_node)
 from gendiff.formatters.convert_bool import convert
 
 COMPLEX_VALUE = '[complex value]'
@@ -79,5 +79,5 @@ def formatter(list_elements, way=''):
     """
     list_sorted = sorted(list_elements, key=lambda element: get_key(element))
     list_string = [get_string_node(way, node) for node in list_sorted]
-    list_sorted = [x for x in list_string if x != '']
+    list_sorted = [string for string in list_string if string != '']
     return '\n'.join(list_sorted)
