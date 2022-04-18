@@ -34,7 +34,7 @@ test_data = [{'file_one': 'file1.json',
 
 def file_read(way):
     file_ = open(way)
-    result = file_.read()
+    result = file_.read()[:-1]
     file_.close()
     return result
 

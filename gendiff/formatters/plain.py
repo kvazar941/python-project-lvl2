@@ -22,18 +22,18 @@ def is_complex(checked_value):
 def create_string_add_key(way, node):
     way_result = way + get_key(node)
     added_value = is_complex(get_diff_new(node))
-    return f"Property '{way_result}' was added with value: {added_value}\n"
+    return f"Property '{way_result}' was added with value: {added_value}"
 
 
 def create_string_removed_key(way, node):
-    return f"Property '{way + get_key(node)}' was removed\n"
+    return f"Property '{way + get_key(node)}' was removed"
 
 
 def create_string_updated_key(way, node):
     way_result = way + get_key(node)
     old = is_complex(get_diff_old(node))
     new = is_complex(get_diff_new(node))
-    return f"Property '{way_result}' was updated. From {old} to {new}\n"
+    return f"Property '{way_result}' was updated. From {old} to {new}"
 
 
 def get_string_node(way, node):
@@ -78,4 +78,4 @@ def formatter(list_elements, way=''):
         str
     """
     list_sorted = sorted(list_elements, key=lambda element: get_key(element))
-    return ''.join([get_string_node(way, node) for node in list_sorted])
+    return '\n'.join([get_string_node(way, node) for node in list_sorted])
