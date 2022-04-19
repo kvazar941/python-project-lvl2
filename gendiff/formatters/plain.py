@@ -51,9 +51,9 @@ def get_string_node(way, node):
     if is_node(node):
         if is_key_added(node):
             string_node = create_string_add_key(way, node)
-        if is_key_removed(node):
+        elif is_key_removed(node):
             string_node = create_string_removed_key(way, node)
-        if is_key_updated(node):
+        elif is_key_updated(node):
             string_node = create_string_updated_key(way, node)
         return string_node
     return formatter(get_children(node), f'{way}{get_key(node)}.')
