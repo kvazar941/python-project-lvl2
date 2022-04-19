@@ -1,48 +1,49 @@
+"""test module."""
 from gendiff.scripts.gendiff import generate_diff
 
-TEST_DATA = [{'file_one': 'file1.json',
-            'file_two': 'file2.json',
-            'stylish': 'result_stylish.txt',
-            'plain': 'result_plain.txt',
-            'json': 'result_json.txt',
-            'dir': './test/fixtures/flat/'
-            },
-            {'file_one': 'file3.yml',
-            'file_two': 'file4.yaml',
-            'stylish': 'result_stylish.txt',
-            'plain': 'result_plain.txt',
-            'json': 'result_json.txt',
-            'dir': './test/fixtures/flat/'
-            },
-            {'file_one': 'file1.json',
-            'file_two': 'file2.json',
-            'stylish': 'result_stylish.txt',
-            'plain': 'result_plain.txt',
-            'json': 'result_json.txt',
-            'dir': './test/fixtures/recursive/'
-            },
-            {'file_one': 'file3.yml',
-            'file_two': 'file4.yaml',
-            'stylish': 'result_stylish.txt',
-            'plain': 'result_plain.txt',
-            'json': 'result_json.txt',
-            'dir': './test/fixtures/recursive/'
-            }
-        ]
+FLAT_JSON_ONE = './test/fixtures/flat/file1.json'
+FLAT_JSON_TWO = './test/fixtures/flat/file2.json'
+FLAT_YML_ONE = './test/fixtures/flat/file3.yml'
+FLAT_YML_TWO = './test/fixtures/flat/file4.yaml'
+FLAT_STYLISH = './test/fixtures/flat/result_stylish.txt'
+FLAT_PLAIN = './test/fixtures/flat/result_plain.txt'
+FLAT_JSON = './test/fixtures/flat/result_json.txt'
+RECURSIVE_JSON_ONE = './test/fixtures/recursive/file1.json'
+RECURSIVE_JSON_TWO = './test/fixtures/recursive/file2.json'
+RECURSIVE_YML_ONE = './test/fixtures/recursive/file3.yml'
+RECURSIVE_YML_TWO = './test/fixtures/recursive/file4.yaml'
+RECURSIVE_STYLISH = './test/fixtures/recursive/result_stylish.txt'
+RECURSIVE_PLAIN = './test/fixtures/recursive/result_plain.txt'
+RECURSIVE_JSON = './test/fixtures/recursive/result_json.txt'
+
+STYLISH = 'stylish'
+PLAIN = 'plain'
+JSON = 'json'
+
+
+TEST_DATA = [  # noqa WPS407
+    (FLAT_JSON_ONE, FLAT_JSON_TWO, STYLISH, FLAT_STYLISH),
+    (FLAT_YML_ONE, FLAT_YML_TWO, STYLISH, FLAT_STYLISH),
+    (FLAT_JSON_ONE, FLAT_JSON_TWO, PLAIN, FLAT_PLAIN),
+    (FLAT_YML_ONE, FLAT_YML_TWO, PLAIN, FLAT_PLAIN),
+    (FLAT_JSON_ONE, FLAT_JSON_TWO, JSON, FLAT_JSON),
+    (FLAT_YML_ONE, FLAT_YML_TWO, JSON, FLAT_JSON),
+    (RECURSIVE_JSON_ONE, RECURSIVE_JSON_TWO, STYLISH, RECURSIVE_STYLISH),
+    (RECURSIVE_YML_ONE, RECURSIVE_YML_TWO, STYLISH, RECURSIVE_STYLISH),
+    (RECURSIVE_JSON_ONE, RECURSIVE_JSON_TWO, PLAIN, RECURSIVE_PLAIN),
+    (RECURSIVE_YML_ONE, RECURSIVE_YML_TWO, PLAIN, RECURSIVE_PLAIN),
+    (RECURSIVE_JSON_ONE, RECURSIVE_JSON_TWO, JSON, RECURSIVE_JSON),
+    (RECURSIVE_YML_ONE, RECURSIVE_YML_TWO, JSON, RECURSIVE_JSON),
+]
 
 
 def file_read(way):
-    file_ = open(way)
-    result = file_.read()[:-1]
-    file_.close()
-    return result
+    with open(way) as file_name:
+        return file_name.read()[:-1]
 
 
 def test_generate_diff():
-    for x in TEST_DATA:
-        coll = [x['dir'] + x['file_one'], x['dir'] + x['file_two']]
-        for y in ['stylish', 'plain', 'json']:
-            test = generate_diff(*coll, y)
-            result = file_read(x['dir'] + x[y])
-            assert type(test) == str
-            assert result == test
+    for coll in TEST_DATA:
+        file_a, file_b, formatter, diff = coll
+        assert isinstance(generate_diff(file_a, file_b, formatter), str)
+        assert file_read(diff) == generate_diff(file_a, file_b, formatter)
