@@ -84,9 +84,23 @@ def convert_format(list_dict, count=0):
     return sorted(list_flat, key=lambda key_node: key_node[1])
 
 
+def is_tuple_node(node):
+    return not isinstance(node, list)
+
+
+def is_tuple_not_node(node):
+    return any([isinstance(elem, list) for elem in list(node)])
+
+
+def get_child_tuple(node):
+    for elem in node:
+        if isinstance(elem, list):
+            return elem
+
+
 def convert_to_str(list_tuple, count=0):
     """
-    Create a one string from node.
+    Create a string from list_tuple.
 
     Args:
         list_tuple: list
@@ -95,11 +109,11 @@ def convert_to_str(list_tuple, count=0):
     Returns:
         str
     """
-    if not isinstance(list_tuple, list):
+    if is_tuple_node(list_tuple):
         indent, key, key_value = list_tuple
-        if isinstance(list_tuple[2], list):
-            current_value = convert_to_str(list_tuple[2], count + 1)
-            return '{0}{1}: {2}'.format(indent, key, current_value)
+        if is_tuple_not_node(list_tuple):
+            new_value = convert_to_str(get_child_tuple(list_tuple), count + 1)
+            return '{0}{1}: {2}'.format(indent, key, new_value)
         return '{0}{1}: {2}'.format(*list_tuple)
     string = list(map(lambda elem: convert_to_str(elem, count), list_tuple))
     string.insert(0, '{')
@@ -107,5 +121,5 @@ def convert_to_str(list_tuple, count=0):
     return '\n'.join(string)
 
 
-def formatter(list_):
-    return convert_to_str(convert_format(list_))
+def formatter(list_dict):
+    return convert_to_str(convert_format(list_dict))

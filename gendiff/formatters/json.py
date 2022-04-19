@@ -10,7 +10,7 @@ def get_format(list_data):
     Create dict for formatter.
 
     Args:
-        list_data: str
+        list_data: list
 
     Returns:
         dict

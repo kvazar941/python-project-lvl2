@@ -43,6 +43,7 @@ def file_read(way):
 
 
 def test_generate_diff():
+    """Testing generate_diff."""
     for coll in TEST_DATA:
         file_a, file_b, formatter, diff = coll
         assert isinstance(generate_diff(file_a, file_b, formatter), str)
