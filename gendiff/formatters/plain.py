@@ -26,7 +26,8 @@ def create_string_add_key(way, node):
 
 
 def create_string_removed_key(way, node):
-    return f"Property '{way + get_key(node)}' was removed"
+    way_result = way + get_key(node)
+    return f"Property '{way_result}' was removed"
 
 
 def create_string_updated_key(way, node):
@@ -56,7 +57,7 @@ def get_string_node(way, node):
         elif is_key_updated(node):
             string_node = create_string_updated_key(way, node)
         return string_node
-    return formatter(get_children(node), f'{way}{get_key(node)}.')
+    return formatter(get_children(node), '{0}{1}.'.format(way, get_key(node)))
 
 
 def formatter(list_elements, way=''):
@@ -77,5 +78,4 @@ def formatter(list_elements, way=''):
     """
     list_sorted = sorted(list_elements, key=lambda element: get_key(element))
     list_string = [get_string_node(way, node) for node in list_sorted]
-    list_filtered = [string for string in list_string if string != '']
-    return '\n'.join(list_filtered)
+    return '\n'.join(filter(lambda element: element != '', list_string))

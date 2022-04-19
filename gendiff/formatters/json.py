@@ -1,19 +1,27 @@
 """to json module."""
 import json
 
-from gendiff.diff import get_children, get_diff_node, get_key, is_node
+from gendiff.diff import (get_children, get_diff_node, get_key, is_node,
+                          is_not_node)
 
 
-def get_format(list_):
-    list_sorted = sorted(list_, key=lambda node: get_key(node))
-    dict_result = {}
-    for element in list_sorted:
-        if is_node(element):
-            dict_result[get_key(element)] = get_diff_node(element)
-        else:
-            dict_result[get_key(element)] = get_format(get_children(element))
-    return dict_result
+def get_format(list_data):
+    """
+    Create dict for formatter.
+
+    Args:
+        list_data: str
+
+    Returns:
+        dict
+    """
+    if is_node(list_data):
+        return (get_key(list_data), get_diff_node(list_data))
+    if is_not_node(list_data):
+        return (get_key(list_data), get_format(get_children(list_data)))
+    list_sorted = sorted(list_data, key=lambda element: get_key(element))
+    return dict(map(get_format, list_sorted))
 
 
-def formatter(list_):
-    return json.dumps(get_format(list_), indent=4)
+def formatter(list_data):
+    return json.dumps(get_format(list_data), indent=4)

@@ -73,14 +73,15 @@ def convert_format(list_dict, count=0):
     Returns:
         list
     """
-    list_tuple = []
     indent = DEFAULT_INDENT * count
-    for node in filter(is_node, list_dict):
-        list_tuple.extend(get_list_changed(node, indent, count + 1))
-    for key in filter(is_not_node, list_dict):
-        curr_value = convert_format(get_children(key), count + 1)
-        list_tuple.append((indent + DEFAULT_INDENT, get_key(key), curr_value))
-    return sorted(list_tuple, key=lambda key_node: key_node[1])
+    if is_node(list_dict):
+        return get_list_changed(list_dict, indent, count + 1)
+    if is_not_node(list_dict):
+        current_value = convert_format(get_children(list_dict), count + 1)
+        return [(indent + DEFAULT_INDENT, get_key(list_dict), current_value)]
+    list_lists = map(lambda elem: convert_format(elem, count), list_dict)
+    list_flat = [elem for sublist in list_lists for elem in sublist]
+    return sorted(list_flat, key=lambda key_node: key_node[1])
 
 
 def convert_to_str(list_tuple, count=0):
@@ -94,19 +95,16 @@ def convert_to_str(list_tuple, count=0):
     Returns:
         str
     """
-    list_string = []
-
-    def is_list(checked_value):
-        if isinstance(checked_value, list):
-            return f'{convert_to_str(checked_value, count + 1)}'
-        return f'{checked_value}'
-    list_string = []
-    for tuple_ in list_tuple:
-        indent, key, key_value = tuple_
-        list_string.append(f'{indent}{key}: {is_list(key_value)}')
-    list_string.insert(0, '{')
-    list_string.append(DEFAULT_INDENT * count + '}')
-    return '\n'.join(list_string)
+    if not isinstance(list_tuple, list):
+        indent, key, key_value = list_tuple
+        if isinstance(list_tuple[2], list):
+            current_value = convert_to_str(list_tuple[2], count + 1)
+            return '{0}{1}: {2}'.format(indent, key, current_value)
+        return '{0}{1}: {2}'.format(*list_tuple)
+    string = list(map(lambda elem: convert_to_str(elem, count), list_tuple))
+    string.insert(0, '{')
+    string.append(''.join([DEFAULT_INDENT * count, '}']))
+    return '\n'.join(string)
 
 
 def formatter(list_):
