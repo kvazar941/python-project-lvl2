@@ -5,9 +5,9 @@
 
 ### GitHub Action tests and linter status:
 
-[![linter](https://github.com/kvazar941/python-project-lvl2/action/workflows/workflows_make_lint.yml/badge.svg)](https://github.com/kvazar941/python-project-lvl2/action/workflows/workflows_make_lint.yml)
+[![Linter](https://github.com/kvazar941/python-project-lvl2/actions/workflows/workflows_make_lint.yml/badge.svg)](https://github.com/kvazar941/python-project-lvl2/actions/workflows/workflows_make_lint.yml)
 
-[![tests](https://github.com/kvazar941/python-project-lvl2/action/workflows/workflows_test_gendiff.yml/badge.svg)](https://github.com/kvazar941/python-project-lvl2/action/workflows/workflows_test_gendiff.yml)
+[![Tests](https://github.com/kvazar941/python-project-lvl2/actions/workflows/workflows_test_gendiff.yml/badge.svg)](https://github.com/kvazar941/python-project-lvl2/actions/workflows/workflows_test_gendiff.yml)
 
 ### Maintainability and Test Coverage:
 
