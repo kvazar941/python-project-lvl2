@@ -5,9 +5,9 @@
 
 ### GitHub Action tests and linter status:
 
-[![linter](https://github.com/kvazar941/python-project-lvl2/blob/b366aa26408a21f002a9ee7665fb373f2c54e7e0/.github/workflows/workflows_make_lint.yml/badge.svg)](https://github.com/kvazar941/python-project-lvl2/blob/b366aa26408a21f002a9ee7665fb373f2c54e7e0/.github/workflows/workflows_make_lint.yml)
+[![linter](https://github.com/kvazar941/python-project-lvl2/action/workflows/workflows_make_lint.yml/badge.svg)](https://github.com/kvazar941/python-project-lvl2/action/workflows/workflows_make_lint.yml)
 
-[![tests](https://github.com/kvazar941/python-project-lvl2/blob/b366aa26408a21f002a9ee7665fb373f2c54e7e0/.github/workflows/workflows_test_gendiff.yml/badge.svg)](https://github.com/kvazar941/python-project-lvl2/blob/b366aa26408a21f002a9ee7665fb373f2c54e7e0/.github/workflows/workflows_test_gendiff.yml)
+[![tests](https://github.com/kvazar941/python-project-lvl2/action/workflows/workflows_test_gendiff.yml/badge.svg)](https://github.com/kvazar941/python-project-lvl2/action/workflows/workflows_test_gendiff.yml)
 
 ### Maintainability and Test Coverage:
 
