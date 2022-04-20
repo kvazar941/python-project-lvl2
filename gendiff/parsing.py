@@ -4,7 +4,7 @@ import argparse
 HELP = 'set format of output'
 
 
-def parce_file():
+def argument_handing():
     """
     Create a parser with the necessary arguments for the application to work.
 

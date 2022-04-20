@@ -1,5 +1,5 @@
 """test module."""
-from gendiff.scripts.gendiff import generate_diff
+from gendiff.difference_logic import generate_diff
 
 FLAT_JSON_ONE = './test/fixtures/flat/file1.json'
 FLAT_JSON_TWO = './test/fixtures/flat/file2.json'
