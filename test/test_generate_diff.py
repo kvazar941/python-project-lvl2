@@ -1,5 +1,7 @@
 """test module."""
 from gendiff.difference_logic import generate_diff
+from gendiff.read_file import read_file
+
 
 FLAT_JSON_ONE = './test/fixtures/flat/file1.json'
 FLAT_JSON_TWO = './test/fixtures/flat/file2.json'
@@ -37,14 +39,9 @@ TEST_DATA = [
 ]
 
 
-def file_read(way):
-    with open(way) as file_name:
-        return file_name.read()[:-1]
-
-
 def test_generate_diff():
     """Testing generate_diff."""
     for coll in TEST_DATA:
         file_a, file_b, formatter, diff = coll
         assert isinstance(generate_diff(file_a, file_b, formatter), str)
-        assert file_read(diff) == generate_diff(file_a, file_b, formatter)
+        assert read_file(diff)[:-1] == generate_diff(file_a, file_b, formatter)
