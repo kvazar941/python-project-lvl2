@@ -2,7 +2,6 @@
 from gendiff.difference_logic import generate_diff
 from gendiff.read_file import read_file
 
-
 FLAT_JSON_ONE = './test/fixtures/flat/file1.json'
 FLAT_JSON_TWO = './test/fixtures/flat/file2.json'
 FLAT_YML_ONE = './test/fixtures/flat/file3.yml'
