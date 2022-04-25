@@ -1,6 +1,8 @@
 """test module."""
-from gendiff.difference_logic import generate_diff
-from gendiff.read_file import read_file
+import pytest
+
+from gendiff.differ import generate_diff
+from gendiff.read_file import get_file_data
 
 FLAT_JSON_ONE = './test/fixtures/flat/file1.json'
 FLAT_JSON_TWO = './test/fixtures/flat/file2.json'
@@ -38,9 +40,18 @@ TEST_DATA = [
 ]
 
 
-def test_generate_diff():
-    """Testing generate_diff."""
-    for coll in TEST_DATA:
-        file_a, file_b, formatter, diff = coll
-        assert isinstance(generate_diff(file_a, file_b, formatter), str)
-        assert read_file(diff)[:-1] == generate_diff(file_a, file_b, formatter)
+@pytest.mark.parametrize('file_a,file_b,formatter,expected', TEST_DATA)
+def test_generate_diff(file_a, file_b, formatter, expected):
+    """
+    Testing generate_diff.
+
+    Args:
+        file_a: str
+        file_b: str
+        formatter: str
+        expected: str
+
+    """
+    assert isinstance(generate_diff(file_a, file_b, formatter), str)
+    content_file = get_file_data(expected)[0]
+    assert content_file[:-1] == generate_diff(file_a, file_b, formatter)

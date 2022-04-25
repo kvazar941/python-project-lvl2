@@ -1,7 +1,7 @@
-"""module difference logic."""
+"""module differ."""
 from gendiff.diff import get_diff
 from gendiff.formatters.formatter_selection import apply_formatter
-from gendiff.read_file import read_data
+from gendiff.read_file import get_file_data, parsing_string
 
 
 def generate_diff(first_file, second_file, output_format='stylish'):
@@ -16,7 +16,7 @@ def generate_diff(first_file, second_file, output_format='stylish'):
     Returns:
         str
     """
-    data_first_file = read_data(first_file)
-    data_second_file = read_data(second_file)
+    data_first_file = parsing_string(get_file_data(first_file))
+    data_second_file = parsing_string(get_file_data(second_file))
     diffs = get_diff(data_first_file, data_second_file)
     return apply_formatter(output_format, diffs)

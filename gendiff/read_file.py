@@ -1,12 +1,19 @@
 """module read_file."""
 import json
+import os
 
 import yaml
 
 
-def read_file(way_to_file):
+def get_file_extension(way_to_file):
+    return os.path.splitext(way_to_file)[1]
+
+
+def get_file_data(way_to_file):
     with open(way_to_file) as file_name:
-        return file_name.read()
+        file_content = file_name.read()
+    extension = get_file_extension(way_to_file)
+    return (file_content, extension)
 
 
 def parsing_json(string):
@@ -17,29 +24,18 @@ def parsing_yaml(string):
     return yaml.safe_load(string)
 
 
-def get_file_extension(way_to_file):
-    return way_to_file.split('.')[-1]
-
-
-def is_json(way_to_file):
-    return get_file_extension(way_to_file) == 'json'
-
-
-def is_yaml(way_to_file):
-    return get_file_extension(way_to_file) in {'yml', 'yaml'}
-
-
-def read_data(way_to_file):
+def parsing_string(file_data):
     """
     Read file.
 
     Args:
-        way_to_file: str
+        file_data: tuple
 
     Returns:
         dict
     """
-    if is_json(way_to_file):
-        return parsing_json(read_file(way_to_file))
-    if is_yaml(way_to_file):
-        return parsing_yaml(read_file(way_to_file))
+    string, extension = file_data
+    if extension == '.json':
+        return parsing_json(string)
+    if extension in {'.yml', '.yaml'}:
+        return parsing_yaml(string)

@@ -69,7 +69,7 @@ def is_key_updated(node):
     return False
 
 
-def create_format(key, dict_a, dict_b):
+def get_data_key_change(key, dict_a, dict_b):
     """
     Create a dictionary with data about changing one key.
 
@@ -103,4 +103,4 @@ def get_diff(dict_a, dict_b):
         dict
     """
     key_set = dict_a.keys() | dict_b.keys()
-    return [create_format(key, dict_a, dict_b) for key in key_set]
+    return [get_data_key_change(key, dict_a, dict_b) for key in key_set]
