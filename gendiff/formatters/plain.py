@@ -1,15 +1,9 @@
 """Plain module."""
-from gendiff.diff import (get_children, get_diff_new, get_diff_old, get_key,
-                          is_node)
+from gendiff.diff import (ADDED, DELETED, MODIFIED, STATUS, get_children,
+                          get_diff_new, get_diff_old, get_key, is_node)
 from gendiff.formatters.convert_bool import convert
 
 COMPLEX_VALUE = '[complex value]'
-STATUS = 'status'
-DELETED = 'deleted'
-ADDED = 'added'
-MODIFIED = 'modified'
-NOT_MODIFIED = 'not modified'
-NESTED = 'nested'
 
 
 def format_conv(checked_value):

@@ -17,14 +17,6 @@ def is_all_dict(*args):
     return all([isinstance(argument, dict) for argument in args])
 
 
-def is_old(key):
-    return key == OLD
-
-
-def is_new(key):
-    return key == NEW
-
-
 def get_key(node):
     return node[KEY]
 

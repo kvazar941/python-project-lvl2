@@ -1,15 +1,18 @@
 """Stylish module."""
-from gendiff.diff import (get_children, get_diff_new, get_diff_node, get_key,
-                          is_new, is_node, is_not_node, is_old)
+from gendiff.diff import (NEW, NOT_MODIFIED, OLD, STATUS, get_children,
+                          get_diff_new, get_diff_node, get_key, is_node,
+                          is_not_node)
 from gendiff.formatters.convert_bool import convert
 
 DEFAULT_INDENT = '    '
-STATUS = 'status'
-DELETED = 'deleted'
-ADDED = 'added'
-MODIFIED = 'modified'
-NOT_MODIFIED = 'not modified'
-NESTED = 'nested'
+
+
+def is_old(key):
+    return key == OLD
+
+
+def is_new(key):
+    return key == NEW
 
 
 def get_indent(key):
