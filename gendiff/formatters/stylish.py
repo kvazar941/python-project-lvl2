@@ -1,10 +1,15 @@
 """Stylish module."""
 from gendiff.diff import (get_children, get_diff_new, get_diff_node, get_key,
-                          is_key_no_change, is_new, is_node, is_not_node,
-                          is_old)
+                          is_new, is_node, is_not_node, is_old)
 from gendiff.formatters.convert_bool import convert
 
 DEFAULT_INDENT = '    '
+STATUS = 'status'
+DELETED = 'deleted'
+ADDED = 'added'
+MODIFIED = 'modified'
+NOT_MODIFIED = 'not modified'
+NESTED = 'nested'
 
 
 def get_indent(key):
@@ -48,7 +53,7 @@ def get_list_changed(node, indent, count):
         list
     """
     list_changed = []
-    if is_key_no_change(node):
+    if node[STATUS] == NOT_MODIFIED:
         current_indent = indent + DEFAULT_INDENT
         current_value = convert_dict(get_diff_new(node), count)
         return [(current_indent, get_key(node), current_value)]

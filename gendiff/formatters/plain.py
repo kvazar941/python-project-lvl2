@@ -1,10 +1,15 @@
 """Plain module."""
 from gendiff.diff import (get_children, get_diff_new, get_diff_old, get_key,
-                          is_key_added, is_key_removed, is_key_updated,
                           is_node)
 from gendiff.formatters.convert_bool import convert
 
 COMPLEX_VALUE = '[complex value]'
+STATUS = 'status'
+DELETED = 'deleted'
+ADDED = 'added'
+MODIFIED = 'modified'
+NOT_MODIFIED = 'not modified'
+NESTED = 'nested'
 
 
 def format_conv(checked_value):
@@ -50,11 +55,11 @@ def get_string_node(way, node):
     """
     string_node = ''
     if is_node(node):
-        if is_key_added(node):
+        if node[STATUS] == ADDED:
             string_node = create_string_add_key(way, node)
-        elif is_key_removed(node):
+        elif node[STATUS] == DELETED:
             string_node = create_string_removed_key(way, node)
-        elif is_key_updated(node):
+        elif node[STATUS] == MODIFIED:
             string_node = create_string_updated_key(way, node)
         return string_node
     return formatter(get_children(node), '{0}{1}.'.format(way, get_key(node)))
