@@ -1,6 +1,6 @@
 """Plain module."""
-from gendiff.diff import (ADDED, DELETED, MODIFIED, STATUS, get_children,
-                          get_diff_new, get_diff_old, get_key, is_node)
+from gendiff.diff import (ADDED, DELETED, MODIFIED, TYPE, get_children,
+                          get_key, get_new, get_old, is_node)
 from gendiff.formatters.convert_bool import convert
 
 COMPLEX_VALUE = '[complex value]'
@@ -20,7 +20,7 @@ def is_complex(checked_value):
 
 def create_string_add_key(way, node):
     way_result = way + get_key(node)
-    added_value = is_complex(get_diff_new(node))
+    added_value = is_complex(get_new(node))
     return f"Property '{way_result}' was added with value: {added_value}"
 
 
@@ -31,8 +31,8 @@ def create_string_removed_key(way, node):
 
 def create_string_updated_key(way, node):
     way_result = way + get_key(node)
-    old = is_complex(get_diff_old(node))
-    new = is_complex(get_diff_new(node))
+    old = is_complex(get_old(node))
+    new = is_complex(get_new(node))
     return f"Property '{way_result}' was updated. From {old} to {new}"
 
 
@@ -49,11 +49,11 @@ def get_string_node(way, node):
     """
     string_node = ''
     if is_node(node):
-        if node[STATUS] == ADDED:
+        if node[TYPE] == ADDED:
             string_node = create_string_add_key(way, node)
-        elif node[STATUS] == DELETED:
+        elif node[TYPE] == DELETED:
             string_node = create_string_removed_key(way, node)
-        elif node[STATUS] == MODIFIED:
+        elif node[TYPE] == MODIFIED:
             string_node = create_string_updated_key(way, node)
         return string_node
     return formatter(get_children(node), '{0}{1}.'.format(way, get_key(node)))

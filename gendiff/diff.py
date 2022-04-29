@@ -5,7 +5,7 @@ NEW = 'new'
 KEY = 'key'
 DIFF = 'diff'
 CHILDREN = 'children'
-STATUS = 'status'
+TYPE = 'type'
 DELETED = 'deleted'
 ADDED = 'added'
 MODIFIED = 'modified'
@@ -25,11 +25,11 @@ def get_diff_node(node):
     return node[DIFF]
 
 
-def get_diff_old(node):
+def get_old(node):
     return node[DIFF][OLD]
 
 
-def get_diff_new(node):
+def get_new(node):
     return node[DIFF][NEW]
 
 
@@ -45,6 +45,17 @@ def is_not_node(node):
     return CHILDREN in node
 
 
+def get_key_type(cheked_key, dict_a, dict_b):
+    type_ = NOT_MODIFIED
+    if cheked_key not in dict_a:
+        type_ = ADDED
+    elif cheked_key not in dict_b:
+        type_ = DELETED
+    elif dict_a[cheked_key] != dict_b[cheked_key]:
+        type_ = MODIFIED
+    return type_
+
+
 def get_data_key_change(key, dict_a, dict_b):
     """
     Create a dictionary with data about changing one key.
@@ -57,25 +68,15 @@ def get_data_key_change(key, dict_a, dict_b):
     Returns:
         dict
     """
-    def get_key_status(cheked_key):
-        status = NOT_MODIFIED
-        if cheked_key not in dict_a:
-            status = ADDED
-        elif cheked_key not in dict_b:
-            status = DELETED
-        elif dict_a[cheked_key] != dict_b[cheked_key]:
-            status = MODIFIED
-        return status
-
     if is_all_dict(dict_a.get(key), dict_b.get(key)):
         children = get_diff(dict_a[key], dict_b[key])
-        return {KEY: key, CHILDREN: children, STATUS: NESTED}
+        return {KEY: key, CHILDREN: children, TYPE: NESTED}
     node = {}
     if key in dict_a:
         node[OLD] = dict_a.get(key)
     if key in dict_b:
         node[NEW] = dict_b.get(key)
-    return {KEY: key, DIFF: node, STATUS: get_key_status(key)}
+    return {KEY: key, DIFF: node, TYPE: get_key_type(key, dict_a, dict_b)}
 
 
 def get_diff(dict_a, dict_b):

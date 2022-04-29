@@ -1,7 +1,6 @@
 """Stylish module."""
-from gendiff.diff import (ADDED, DELETED, MODIFIED, NESTED, NOT_MODIFIED,
-                          STATUS, get_children, get_diff_new, get_diff_node,
-                          get_diff_old, get_key)
+from gendiff.diff import (ADDED, DELETED, MODIFIED, NOT_MODIFIED, TYPE,
+                          get_children, get_key, get_new, get_old)
 from gendiff.formatters.convert_bool import convert
 
 DEFAULT_INDENT = '    '
@@ -47,19 +46,19 @@ def get_string(node, count):
     """
     indent = DEFAULT_INDENT * (count - 1)
     key = get_key(node)
-    if node[STATUS] == MODIFIED:
-        first_str = formate(f'{indent}{DEL_INDENT}', key, get_diff_old(node), count)
-        second_str = formate(f'{indent}{ADD_INDENT}', key, get_diff_new(node), count)
-        return '\n'.join([first_str, second_str])
-    elif node[STATUS] == NOT_MODIFIED:
+    if node[TYPE] == MODIFIED:
+        str_one = formate(f'{indent}{DEL_INDENT}', key, get_old(node), count)
+        str_two = formate(f'{indent}{ADD_INDENT}', key, get_new(node), count)
+        return '\n'.join([str_one, str_two])
+    elif node[TYPE] == NOT_MODIFIED:
         current_indent = DEFAULT_INDENT
-        content_key = get_diff_new(node)
-    elif node[STATUS] == ADDED:
+        content_key = get_new(node)
+    elif node[TYPE] == ADDED:
         current_indent = ADD_INDENT
-        content_key = get_diff_new(node)
-    elif node[STATUS] == DELETED:
+        content_key = get_new(node)
+    elif node[TYPE] == DELETED:
         current_indent = DEL_INDENT
-        content_key = get_diff_old(node)
+        content_key = get_old(node)
     else:
         current_indent = DEFAULT_INDENT
         content_key = formatter(get_children(node), count)
