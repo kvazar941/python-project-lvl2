@@ -31,7 +31,7 @@ def formate(current_indent, key, content_key, count):
     return '{0}{1}: {2}'.format(current_indent, key, '\n'.join(list_elem))
 
 
-def get_string(node, count):
+def get_string(node, count):  # noqa WPS210
     """
     Get a list of key changes.
 
@@ -42,18 +42,25 @@ def get_string(node, count):
     Returns:
         list
     """
+    indent = DEFAULT_INDENT * (count - 1)
     key = get_key(node)
-    if node[STATUS] == NOT_MODIFIED:
-        return [formate('    ', key, get_diff_new(node), count)]
-    if node[STATUS] == ADDED:
-        return [formate('  + ', key, get_diff_new(node), count)]
-    if node[STATUS] == DELETED:
-        return [formate('  - ', key, get_diff_old(node), count)]
     if node[STATUS] == MODIFIED:
-        first_string = formate('  - ', key, get_diff_old(node), count)
-        second_string = formate('  + ', key, get_diff_new(node), count)
-        return [first_string, second_string]
-    return [formate('    ', key, formatter(get_children(node), count), count)]
+        first_str = formate(f'{indent}  - ', key, get_diff_old(node), count)
+        second_str = formate(f'{indent}  + ', key, get_diff_new(node), count)
+        return [first_str, second_str]
+    elif node[STATUS] == NOT_MODIFIED:
+        current_indent = DEFAULT_INDENT
+        content_key = get_diff_new(node)
+    elif node[STATUS] == ADDED:
+        current_indent = '  + '
+        content_key = get_diff_new(node)
+    elif node[STATUS] == DELETED:
+        current_indent = '  - '
+        content_key = get_diff_old(node)
+    else:
+        current_indent = DEFAULT_INDENT
+        content_key = formatter(get_children(node), count)
+    return [formate(f'{indent}{current_indent}', key, content_key, count)]
 
 
 def formatter(list_dict, count=0):
@@ -67,13 +74,8 @@ def formatter(list_dict, count=0):
     Returns:
         list
     """
-    new_count = count + 1
-    indent = DEFAULT_INDENT * count
-    list_string = []
     list_dict.sort(key=lambda node: node['key'])
-    for dict_ in list_dict:
-        string = [f'{indent}{str_}' for str_ in get_string(dict_, new_count)]
-        list_string.append('\n'.join(string))
-    list_string.insert(0, '{')
-    list_string.append(''.join([indent, '}']))
-    return '\n'.join(list_string)
+    list_ = ['\n'.join(get_string(dict_, count + 1)) for dict_ in list_dict]
+    list_.insert(0, '{')
+    list_.append(''.join([DEFAULT_INDENT * count, '}']))
+    return '\n'.join(list_)
