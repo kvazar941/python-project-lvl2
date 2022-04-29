@@ -23,7 +23,9 @@ def formate(current_indent, key, content_key, count):
         return '{0}{1}: {2}'.format(current_indent, key, convert(content_key))
     new_count = count + 1
     indent = DEFAULT_INDENT * (new_count)
-    list_elem = [formate(indent, x, content_key[x], new_count) for x in content_key]
+    list_elem = []
+    for elem in content_key:
+        list_elem.append(formate(indent, elem, content_key[elem], new_count))
     list_elem.insert(0, '{')
     list_elem.append(''.join([DEFAULT_INDENT * count, '}']))
     return '{0}{1}: {2}'.format(current_indent, key, '\n'.join(list_elem))
@@ -65,13 +67,13 @@ def formatter(list_dict, count=0):
     Returns:
         list
     """
+    new_count = count + 1
     indent = DEFAULT_INDENT * count
-    result_list_string = []
-    list_dict.sort(key=lambda a: a['key'])
+    list_string = []
+    list_dict.sort(key=lambda node: node['key'])
     for dict_ in list_dict:
-        list_string = [f'{indent}{y}' for y in get_string(dict_, count + 1)]
-        string = '\n'.join(list_string)
-        result_list_string.append(string)
-    result_list_string.insert(0, '{')
-    result_list_string.append(''.join([indent, '}']))
-    return '\n'.join(result_list_string)
+        string = [f'{indent}{str_}' for str_ in get_string(dict_, new_count)]
+        list_string.append('\n'.join(string))
+    list_string.insert(0, '{')
+    list_string.append(''.join([indent, '}']))
+    return '\n'.join(list_string)
