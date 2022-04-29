@@ -1,9 +1,12 @@
 """Stylish module."""
-from gendiff.diff import (ADDED, DELETED, MODIFIED, NOT_MODIFIED, STATUS,
-                          get_children, get_diff_new, get_diff_old, get_key)
+from gendiff.diff import (ADDED, DELETED, MODIFIED, NESTED, NOT_MODIFIED,
+                          STATUS, get_children, get_diff_new, get_diff_node,
+                          get_diff_old, get_key)
 from gendiff.formatters.convert_bool import convert
 
 DEFAULT_INDENT = '    '
+ADD_INDENT = '  + '
+DEL_INDENT = '  - '
 
 
 def formate(current_indent, key, content_key, count):
@@ -31,7 +34,7 @@ def formate(current_indent, key, content_key, count):
     return '{0}{1}: {2}'.format(current_indent, key, '\n'.join(list_elem))
 
 
-def get_string(node, count):  # noqa WPS210
+def get_string(node, count):
     """
     Get a list of key changes.
 
@@ -45,22 +48,22 @@ def get_string(node, count):  # noqa WPS210
     indent = DEFAULT_INDENT * (count - 1)
     key = get_key(node)
     if node[STATUS] == MODIFIED:
-        first_str = formate(f'{indent}  - ', key, get_diff_old(node), count)
-        second_str = formate(f'{indent}  + ', key, get_diff_new(node), count)
-        return [first_str, second_str]
+        first_str = formate(f'{indent}{DEL_INDENT}', key, get_diff_old(node), count)
+        second_str = formate(f'{indent}{ADD_INDENT}', key, get_diff_new(node), count)
+        return '\n'.join([first_str, second_str])
     elif node[STATUS] == NOT_MODIFIED:
         current_indent = DEFAULT_INDENT
         content_key = get_diff_new(node)
     elif node[STATUS] == ADDED:
-        current_indent = '  + '
+        current_indent = ADD_INDENT
         content_key = get_diff_new(node)
     elif node[STATUS] == DELETED:
-        current_indent = '  - '
+        current_indent = DEL_INDENT
         content_key = get_diff_old(node)
     else:
         current_indent = DEFAULT_INDENT
         content_key = formatter(get_children(node), count)
-    return [formate(f'{indent}{current_indent}', key, content_key, count)]
+    return formate(f'{indent}{current_indent}', key, content_key, count)
 
 
 def formatter(list_dict, count=0):
@@ -75,7 +78,7 @@ def formatter(list_dict, count=0):
         list
     """
     list_dict.sort(key=lambda node: node['key'])
-    list_ = ['\n'.join(get_string(dict_, count + 1)) for dict_ in list_dict]
-    list_.insert(0, '{')
-    list_.append(''.join([DEFAULT_INDENT * count, '}']))
-    return '\n'.join(list_)
+    list_string = [get_string(dict_, count + 1) for dict_ in list_dict]
+    list_string.insert(0, '{')
+    list_string.append(''.join([DEFAULT_INDENT * count, '}']))
+    return '\n'.join(list_string)

@@ -2,7 +2,7 @@
 import pytest
 
 from gendiff.differ import generate_diff
-from gendiff.read_file import get_file_data
+from gendiff.read_file import get_content
 
 FLAT_JSON_ONE = './test/fixtures/flat/file1.json'
 FLAT_JSON_TWO = './test/fixtures/flat/file2.json'
@@ -53,5 +53,5 @@ def test_generate_diff(file_a, file_b, formatter, expected):
 
     """
     assert isinstance(generate_diff(file_a, file_b, formatter), str)
-    content_file = get_file_data(expected)[0]
+    content_file = get_content(expected)
     assert content_file[:-1] == generate_diff(file_a, file_b, formatter)
