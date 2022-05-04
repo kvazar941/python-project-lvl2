@@ -1,5 +1,5 @@
 """Stylish module."""
-from gendiff.diff import (ADDED, DELETED, MODIFIED, NOT_MODIFIED, TYPE,
+from gendiff.diff import (ADDED, DELETED, MODIFIED, NOT_MODIFIED, TYPE, NESTED,
                           get_children, get_key, get_new, get_old)
 from gendiff.formatters.convert_bool import convert
 
@@ -7,65 +7,52 @@ DEFAULT_INDENT = '    '
 ADD_INDENT = '  + '
 DEL_INDENT = '  - '
 
+INDENTS = {ADDED: ADD_INDENT,
+        DELETED: DEL_INDENT,
+        NOT_MODIFIED: DEFAULT_INDENT,
+        NESTED: DEFAULT_INDENT}
 
-def formate(current_indent, key, content_key, count):
-    """
-    Get the complex value formatted.
-
-    Args:
-        current_indent: str
-        key: str
-        content_key: any
-        count: int
-
-    Returns:
-        list
-    """
-    if not isinstance(content_key, dict):
-        return '{0}{1}: {2}'.format(current_indent, key, convert(content_key))
-    new_count = count + 1
-    indent = DEFAULT_INDENT * (new_count)
-    list_elem = []
-    for elem in content_key:
-        list_elem.append(formate(indent, elem, content_key[elem], new_count))
-    list_elem.insert(0, '{')
-    list_elem.append(''.join([DEFAULT_INDENT * count, '}']))
-    return '{0}{1}: {2}'.format(current_indent, key, '\n'.join(list_elem))
+METODS = {ADDED: get_new,
+        DELETED: get_old,
+        NOT_MODIFIED: get_new}
 
 
-def get_string(node, count):
-    """
-    Get a list of key changes.
+def formate_string_value(node_value, indent=''):
+    if not isinstance(node_value, dict):
+        return '{0}'.format(convert(node_value))
+    next_indent = indent + DEFAULT_INDENT
+    res = ['{']
+    for x in node_value:
+        res.append('{0}{1}: {2}'.format(next_indent, x, formate_string_value(node_value[x], next_indent)))
+    res.append(''.join([indent, '}']))
+    return '\n'.join(res)
 
-    Args:
-        node: dict
-        count: int
 
-    Returns:
-        list
-    """
-    indent = DEFAULT_INDENT * (count - 1)
-    key = get_key(node)
+def make_string_key(node, indent):
+    return '{0}{1}'.format(indent, get_key(node))
+
+
+def make_string_value(node, node_type):
+    return formate_string_value(METODS[node_type](node)).split('\n')
+
+
+def make_full_string(node, indent, node_type):
+    next_indent = indent + DEFAULT_INDENT
+    key = make_string_key(node, INDENTS[node_type])
+    list_string = make_string_value(node, node_type)
+    list_string[1:] = map(lambda x: next_indent + x, list_string[1:])
+    value = '\n'.join(list_string)
+    return '{0}{1}: {2}'.format(indent, key, value)
+
+
+def make_string_node(node, indent):
     if node[TYPE] == MODIFIED:
-        str_one = formate(f'{indent}{DEL_INDENT}', key, get_old(node), count)
-        str_two = formate(f'{indent}{ADD_INDENT}', key, get_new(node), count)
-        return '\n'.join([str_one, str_two])
-    elif node[TYPE] == NOT_MODIFIED:
-        current_indent = DEFAULT_INDENT
-        content_key = get_new(node)
-    elif node[TYPE] == ADDED:
-        current_indent = ADD_INDENT
-        content_key = get_new(node)
-    elif node[TYPE] == DELETED:
-        current_indent = DEL_INDENT
-        content_key = get_old(node)
-    else:
-        current_indent = DEFAULT_INDENT
-        content_key = formatter(get_children(node), count)
-    return formate(f'{indent}{current_indent}', key, content_key, count)
+        return [make_full_string(node, indent, DELETED), make_full_string(node, indent, ADDED)]
+    return [make_full_string(node, indent, node[TYPE])]
 
 
-def formatter(list_dict, count=0):
+
+def formatter(list_dict, indent=''):
     """
     Create a new format.
 
@@ -76,8 +63,16 @@ def formatter(list_dict, count=0):
     Returns:
         list
     """
+    next_indent = indent + DEFAULT_INDENT
     list_dict.sort(key=lambda node: node['key'])
-    list_string = [get_string(dict_, count + 1) for dict_ in list_dict]
-    list_string.insert(0, '{')
-    list_string.append(''.join([DEFAULT_INDENT * count, '}']))
-    return '\n'.join(list_string)
+    result = []
+    for node in list_dict:
+        if node[TYPE] == NESTED:
+            key = make_string_key(node, INDENTS[NESTED])
+            value = formatter(get_children(node), next_indent)
+            result.append('{0}{1}: {2}'.format(indent, key, value))
+        else:
+            result.extend(make_string_node(node, indent))
+    result.insert(0, '{')
+    result.append(''.join([indent, '}']))
+    return '\n'.join(result)
