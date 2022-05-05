@@ -1,4 +1,4 @@
-"""to json module."""
+"""json module."""
 import json
 
 from gendiff.diff import (get_children, get_diff_node, get_key, is_node,

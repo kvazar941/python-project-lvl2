@@ -1,5 +1,5 @@
 """Stylish module."""
-from gendiff.diff import (ADDED, DELETED, MODIFIED, NOT_MODIFIED, TYPE, NESTED,
+from gendiff.diff import (ADDED, DELETED, MODIFIED, NESTED, NOT_MODIFIED, TYPE,
                           get_children, get_key, get_new, get_old)
 from gendiff.formatters.convert_bool import convert
 
@@ -8,71 +8,113 @@ ADD_INDENT = '  + '
 DEL_INDENT = '  - '
 
 INDENTS = {ADDED: ADD_INDENT,
-        DELETED: DEL_INDENT,
-        NOT_MODIFIED: DEFAULT_INDENT,
-        NESTED: DEFAULT_INDENT}
+           DELETED: DEL_INDENT,
+           NOT_MODIFIED: DEFAULT_INDENT,
+           NESTED: DEFAULT_INDENT}
 
 METODS = {ADDED: get_new,
-        DELETED: get_old,
-        NOT_MODIFIED: get_new}
+          DELETED: get_old,
+          NOT_MODIFIED: get_new}
 
 
-def formate_string_value(node_value, indent=''):
-    if not isinstance(node_value, dict):
-        return '{0}'.format(convert(node_value))
-    next_indent = indent + DEFAULT_INDENT
-    res = ['{']
-    for x in node_value:
-        res.append('{0}{1}: {2}'.format(next_indent, x, formate_string_value(node_value[x], next_indent)))
-    res.append(''.join([indent, '}']))
-    return '\n'.join(res)
+def formate_string(arg_one, arg_two, arg_three):
+    return '{0}{1}: {2}'.format(arg_one, arg_two, arg_three)
 
 
-def make_string_key(node, indent):
-    return '{0}{1}'.format(indent, get_key(node))
+def connect_string(*args):
+    return ''.join(args)
 
 
-def make_string_value(node, node_type):
-    return formate_string_value(METODS[node_type](node)).split('\n')
+def add_curly_braces(list_data, indent):
+    list_result = ['{']
+    list_result.extend(list_data)
+    list_result.append(connect_string(indent, '}'))
+    return list_result
+
+
+def add_indent(string):
+    return connect_string(DEFAULT_INDENT + string)
+
+
+def formate_content(content_key, indent=''):
+    if not isinstance(content_key, dict):
+        return str(convert(content_key))
+    list_str = []
+    for key in content_key:
+        current_value = formate_content(content_key[key], add_indent(indent))
+        list_str.append(formate_string(add_indent(indent), key, current_value))
+    return '\n'.join(add_curly_braces(list_str, indent))
+
+
+def make_string_key(indent, key):
+    return connect_string(indent, key)
+
+
+def make_string_value(content_value):
+    return formate_content(content_value).split('\n')
 
 
 def make_full_string(node, indent, node_type):
-    next_indent = indent + DEFAULT_INDENT
-    key = make_string_key(node, INDENTS[node_type])
-    list_string = make_string_value(node, node_type)
-    list_string[1:] = map(lambda x: next_indent + x, list_string[1:])
-    value = '\n'.join(list_string)
-    return '{0}{1}: {2}'.format(indent, key, value)
+    """
+    Create a string from string for key and string for value.
+
+    Args:
+        node: dict
+        indent: str
+        node_type: str
+
+    Returns:
+        str
+    """
+    key = make_string_key(INDENTS[node_type], get_key(node))
+    list_string = make_string_value(METODS[node_type](node))
+    #  We add indents to all lines, the first (curly brace or simple value)
+    #  is not taken into account)
+    list_result = []
+    for string in list_string:
+        if list_string.index(string) > 0:
+            list_result.append(add_indent(indent) + string)
+        else:
+            list_result.append(string)
+    return formate_string(indent, key, '\n'.join(list_result))
 
 
 def make_string_node(node, indent):
-    if node[TYPE] == MODIFIED:
-        return [make_full_string(node, indent, DELETED), make_full_string(node, indent, ADDED)]
-    return [make_full_string(node, indent, node[TYPE])]
+    """
+    Create one or two rows for one key, depending on the type.
 
+    Args:
+        node: dict
+        indent: str
+
+    Returns:
+        str
+    """
+    if node[TYPE] != MODIFIED:
+        return [make_full_string(node, indent, node[TYPE])]
+    string_old = make_full_string(node, indent, DELETED)
+    string_new = make_full_string(node, indent, ADDED)
+    return [string_old, string_new]
 
 
 def formatter(list_dict, indent=''):
     """
-    Create a new format.
+    Create a formatted string for console output.
 
     Args:
         list_dict: list
-        count: int
+        indent: str
 
     Returns:
-        list
+        str
     """
-    next_indent = indent + DEFAULT_INDENT
     list_dict.sort(key=lambda node: node['key'])
-    result = []
+    result_list = []
     for node in list_dict:
         if node[TYPE] == NESTED:
-            key = make_string_key(node, INDENTS[NESTED])
-            value = formatter(get_children(node), next_indent)
-            result.append('{0}{1}: {2}'.format(indent, key, value))
+            key = make_string_key(INDENTS[NESTED], get_key(node))
+            key_value = formatter(get_children(node), add_indent(indent))
+            result_list.append(formate_string(indent, key, key_value))
         else:
-            result.extend(make_string_node(node, indent))
-    result.insert(0, '{')
-    result.append(''.join([indent, '}']))
-    return '\n'.join(result)
+            result_list.extend(make_string_node(node, indent))
+    return '\n'.join(add_curly_braces(result_list, indent))
