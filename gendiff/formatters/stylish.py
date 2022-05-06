@@ -1,6 +1,6 @@
 """Stylish module."""
-from gendiff.diff import (ADDED, DELETED, MODIFIED, NESTED, NOT_MODIFIED, TYPE,
-                          get_children, get_key, get_new, get_old)
+from gendiff.diff import (ADDED, DELETED, KEY, MODIFIED, NESTED, NOT_MODIFIED,
+                          TYPE, get_children, get_key, get_new, get_old)
 from gendiff.formatters.convert_bool import convert
 
 DEFAULT_INDENT = '    '
@@ -14,7 +14,8 @@ INDENTS = {ADDED: ADD_INDENT,
 
 METODS = {ADDED: get_new,
           DELETED: get_old,
-          NOT_MODIFIED: get_new}
+          NOT_MODIFIED: get_new,
+          MODIFIED: (get_old, get_new)}
 
 
 def get_string(arg_one, arg_two, arg_three):
@@ -27,6 +28,17 @@ def connect_string(*args):
 
 def add_indent(string):
     return connect_string(DEFAULT_INDENT + string)
+
+
+def add_key(key, list_string):
+    list_string[0] = '{0}: {1}'.format(key, list_string[0])
+    return list_string
+
+
+def add_ind(type_, list_string):
+    list_result = [connect_string(INDENTS[type_], list_string[0])]
+    list_result.extend(list(map(add_indent, list_string[1:])))
+    return list_result
 
 
 def make_key_value(content_key):
@@ -52,46 +64,26 @@ def make_key_value(content_key):
     return inner(content_key, '').split('\n')
 
 
-def make_one_string_key(node, indent, node_type):
-    """
-    Create a string from string for key and string for value.
-
-    Args:
-        node: dict
-        indent: str
-        node_type: str
-
-    Returns:
-        str
-    """
-    key = connect_string(INDENTS[node_type], get_key(node))
-    list_string = make_key_value(METODS[node_type](node))
-    
-    list_result = []
-    for string in list_string:
-        if list_string.index(string) > 0:
-            list_result.append(add_indent(indent) + string)
-        else:
-            list_result.append(string)
-    return get_string(indent, key, '\n'.join(list_result))
-
-
-def make_string_node(node, indent):
+def make_string_node(node):
     """
     Create one or two rows for one key, depending on the type.
 
     Args:
         node: dict
-        indent: str
 
     Returns:
-        str
+        list
     """
     if node[TYPE] != MODIFIED:
-        return [make_one_string_key(node, indent, node[TYPE])]
-    string_old = make_one_string_key(node, indent, DELETED)
-    string_new = make_one_string_key(node, indent, ADDED)
-    return [string_old, string_new]
+        b = make_key_value(METODS[node[TYPE]](node))
+        return add_ind(node[TYPE], add_key(node[KEY], b))
+    b1 = make_key_value(get_old(node))
+    b2 = make_key_value(get_new(node))
+    d1 = add_ind(DELETED, add_key(node[KEY], b1))
+    d2 = add_ind(ADDED, add_key(node[KEY], b2))
+    res = d1
+    res.extend(d2)
+    return res
 
 
 def formatter(list_dict, indent=''):
@@ -108,11 +100,12 @@ def formatter(list_dict, indent=''):
     list_dict.sort(key=lambda node: node['key'])
     result_list = ['{']
     for node in list_dict:
-        if node[TYPE] == NESTED:
+        if node[TYPE] != NESTED:
+            a = make_string_node(node)
+            result_list.extend([indent + string for string in a])
+        else:
             key = connect_string(INDENTS[NESTED], get_key(node))
             key_value = formatter(get_children(node), add_indent(indent))
             result_list.append(get_string(indent, key, key_value))
-        else:
-            result_list.extend(make_string_node(node, indent))
     result_list.append(connect_string(indent, '}'))
     return '\n'.join(result_list)
