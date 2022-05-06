@@ -29,15 +29,15 @@ def add_indent(string):
     return connect_string(DEFAULT_INDENT + string)
 
 
-def formate_content(content_key):
+def make_key_value(content_key):
     """
-    Format the key value.
+    Get the contents of the key and return it as a list of strings.
 
     Args:
         content_key: Any
 
     Returns:
-        str
+        list
     """
     def inner(data_key, indent):
         if not isinstance(data_key, dict):
@@ -49,18 +49,10 @@ def formate_content(content_key):
             list_str.append(string)
         list_str.append(connect_string(indent, '}'))
         return '\n'.join(list_str)
-    return inner(content_key, '')
+    return inner(content_key, '').split('\n')
 
 
-def make_string_key(indent, key):
-    return connect_string(indent, key)
-
-
-def make_string_value(content_value):
-    return formate_content(content_value).split('\n')
-
-
-def make_full_string(node, indent, node_type):
+def make_one_string_key(node, indent, node_type):
     """
     Create a string from string for key and string for value.
 
@@ -72,10 +64,9 @@ def make_full_string(node, indent, node_type):
     Returns:
         str
     """
-    key = make_string_key(INDENTS[node_type], get_key(node))
-    list_string = make_string_value(METODS[node_type](node))
-    #  We add indents to all lines, the first (curly brace or simple value)
-    #  is not taken into account)
+    key = connect_string(INDENTS[node_type], get_key(node))
+    list_string = make_key_value(METODS[node_type](node))
+    
     list_result = []
     for string in list_string:
         if list_string.index(string) > 0:
@@ -97,9 +88,9 @@ def make_string_node(node, indent):
         str
     """
     if node[TYPE] != MODIFIED:
-        return [make_full_string(node, indent, node[TYPE])]
-    string_old = make_full_string(node, indent, DELETED)
-    string_new = make_full_string(node, indent, ADDED)
+        return [make_one_string_key(node, indent, node[TYPE])]
+    string_old = make_one_string_key(node, indent, DELETED)
+    string_new = make_one_string_key(node, indent, ADDED)
     return [string_old, string_new]
 
 
@@ -118,7 +109,7 @@ def formatter(list_dict, indent=''):
     result_list = ['{']
     for node in list_dict:
         if node[TYPE] == NESTED:
-            key = make_string_key(INDENTS[NESTED], get_key(node))
+            key = connect_string(INDENTS[NESTED], get_key(node))
             key_value = formatter(get_children(node), add_indent(indent))
             result_list.append(get_string(indent, key, key_value))
         else:
