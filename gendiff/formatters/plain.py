@@ -1,6 +1,6 @@
 """Plain module."""
-from gendiff.diff import (ADDED, DELETED, MODIFIED, TYPE, get_children,
-                          get_key, get_new, get_old, is_node)
+from gendiff.diff import (ADDED, CHILDREN, DELETED, KEY, MODIFIED, NEW, OLD,
+                          TYPE, is_node)
 from gendiff.formatters.convert_bool import convert
 
 COMPLEX_VALUE = '[complex value]'
@@ -19,20 +19,20 @@ def is_complex(checked_value):
 
 
 def create_string_add_key(way, node):
-    way_result = way + get_key(node)
-    added_value = is_complex(get_new(node))
+    way_result = way + node[KEY]
+    added_value = is_complex(node[NEW])
     return f"Property '{way_result}' was added with value: {added_value}"
 
 
 def create_string_removed_key(way, node):
-    way_result = way + get_key(node)
+    way_result = way + node[KEY]
     return f"Property '{way_result}' was removed"
 
 
 def create_string_updated_key(way, node):
-    way_result = way + get_key(node)
-    old = is_complex(get_old(node))
-    new = is_complex(get_new(node))
+    way_result = way + node[KEY]
+    old = is_complex(node[OLD])
+    new = is_complex(node[NEW])
     return f"Property '{way_result}' was updated. From {old} to {new}"
 
 
@@ -56,7 +56,8 @@ def get_string_node(way, node):
         elif node[TYPE] == MODIFIED:
             string_node = create_string_updated_key(way, node)
         return string_node
-    return formatter(get_children(node), '{0}{1}.'.format(way, get_key(node)))
+    children = node[CHILDREN]
+    return formatter(children, ''.join([way, node[KEY], '.']))
 
 
 def formatter(list_elements, way=''):
@@ -75,6 +76,6 @@ def formatter(list_elements, way=''):
     Returns:
         str
     """
-    list_sorted = sorted(list_elements, key=lambda element: get_key(element))
-    list_string = [get_string_node(way, node) for node in list_sorted]
+    list_elements.sort(key=lambda node: node[KEY])
+    list_string = [get_string_node(way, node) for node in list_elements]
     return '\n'.join(filter(lambda element: element != '', list_string))
