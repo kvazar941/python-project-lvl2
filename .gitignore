@@ -1,4 +1,4 @@
-venv-project-lvl2/
+env/
 *.рус
 __pycache__
 dist/
